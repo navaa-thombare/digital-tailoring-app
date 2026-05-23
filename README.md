@@ -108,14 +108,16 @@ be signed with the same keystore.
 
 ## Jenkins Dev APK Publication
 
-The root `Jenkinsfile` builds the installable `dev` debug APK on a Windows
-Jenkins agent and publishes it to a Nexus raw hosted repository. Configure the
-pipeline job to check out the `dev` branch.
+The root `Jenkinsfile` builds the installable `dev` debug APK from the Gitea
+`dev` branch and publishes it to a Nexus raw hosted repository. It is written
+for the local Linux Jenkins container in this CI stack.
 
 Prerequisites on the Jenkins agent:
 
-- Flutter and Android SDK are available on `PATH`.
-- `curl.exe` is available.
+- Docker CLI access and the mounted Docker socket are available.
+- `python3` and `curl` are available in the Jenkins container.
+- The Flutter Android build image `ghcr.io/cirruslabs/flutter:stable` can be
+  pulled by Docker.
 - A Nexus raw hosted repository named `mobile-apps` exists, or set the
   `NEXUS_RAW_REPOSITORY` build parameter to the configured raw repository.
 
@@ -126,10 +128,12 @@ Create these Jenkins credentials:
 | `digital-tailoring-dev-owner-default-password` | Secret text | Test-only owner first-login password built into the dev APK |
 | `nexus-admin` | Username with password | Nexus upload access |
 
-The pipeline accepts the Nexus base URL and owner/shop values as build
-parameters, generates ignored `config/dev.json` and `config/owner.json` only
-inside the Jenkins workspace, runs analysis, builds the APK, uploads it, and
-then deletes those generated config files.
+The default `NEXUS_URL` is `http://local-nexus:8081`, the hostname exposed to
+Jenkins on the Docker network. The pipeline accepts the Nexus URL and
+owner/shop values as build parameters, generates ignored `config/dev.json`
+and `config/owner.json` only inside the Jenkins workspace, runs analysis and
+the APK build inside the Flutter SDK container, uploads the APK, and then
+deletes those generated config files.
 
 With the default repository name, the uploaded artifact path is:
 
