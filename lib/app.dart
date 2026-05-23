@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:barcode/barcode.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +19,7 @@ const _ink = Color(0xFF261B14);
 const _languageStorageKey = 'app_language';
 const _ownerPhoneStorageKey = 'configured_owner_phone';
 const _ownerPasswordHashStorageKey = 'configured_owner_password_hash';
+const _ownerSessionStorageKey = 'authenticated_owner_phone';
 
 enum AppLanguage { en, mr }
 
@@ -460,7 +462,9 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
   ShopWorker? _passwordResetWorker;
   bool _isResettingOwnerPassword = false;
   bool _ownerCredentialsLoaded = false;
+  bool _isOwnerSessionActive = false;
   String? _ownerPasswordHash;
+  late final Future<void> _ownerCredentialsFuture;
 
   final List<TailorCustomer> _customers = [
     TailorCustomer(
@@ -659,14 +663,15 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
       openDays: '24/7',
     );
     _loadLanguage();
-    _loadOwnerCredentials();
+    _ownerCredentialsFuture = _loadOwnerCredentials();
     _completeLaunchAnimation();
   }
 
   Future<void> _completeLaunchAnimation() async {
-    await Future<void>.delayed(const Duration(seconds: 30));
+    await Future<void>.delayed(const Duration(seconds: 15));
+    await _ownerCredentialsFuture;
     if (!mounted || _stage != _Stage.launch) return;
-    setState(() => _stage = _Stage.login);
+    setState(() => _stage = _isOwnerSessionActive ? _Stage.home : _Stage.login);
   }
 
   Future<void> _loadLanguage() async {
@@ -688,11 +693,17 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
   Future<void> _loadOwnerCredentials() async {
     final storedPhone = await _storage.read(key: _ownerPhoneStorageKey);
     final passwordHash = await _storage.read(key: _ownerPasswordHashStorageKey);
+    final authenticatedPhone =
+        await _storage.read(key: _ownerSessionStorageKey);
     if (!mounted) return;
     setState(() {
-      if (storedPhone == _profile.phone && passwordHash != null) {
+      final hasChangedPassword =
+          storedPhone == _profile.phone && passwordHash != null;
+      if (hasChangedPassword) {
         _ownerPasswordHash = passwordHash;
       }
+      _isOwnerSessionActive =
+          hasChangedPassword && authenticatedPhone == _profile.phone;
       _ownerCredentialsLoaded = true;
     });
   }
@@ -794,13 +805,7 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
               }),
               onShopSettingsChanged: (value) =>
                   setState(() => _showShopSettings = value),
-              onLogout: () => setState(() {
-                _loggedInWorker = null;
-                _passwordResetWorker = null;
-                _tab = 0;
-                _showShopSettings = false;
-                _stage = _Stage.login;
-              }),
+              onLogout: _logout,
               onCustomerSaved: _saveCustomer,
               onTemplateSaved: _saveTemplate,
               onTemplateDeleted: _deleteTemplate,
@@ -839,6 +844,7 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
         _tab = 0;
         _showShopSettings = false;
         if (hasNewPassword) {
+          _isOwnerSessionActive = true;
           _loggedInWorker = null;
           _passwordResetWorker = null;
           _isResettingOwnerPassword = false;
@@ -849,6 +855,12 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
           _stage = _Stage.passwordReset;
         }
       });
+      if (hasNewPassword) {
+        unawaited(_storage.write(
+          key: _ownerSessionStorageKey,
+          value: _profile.phone,
+        ));
+      }
       return LoginResult.success(forceReset: !hasNewPassword);
     }
 
@@ -886,15 +898,33 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
       key: _ownerPasswordHashStorageKey,
       value: passwordHash,
     );
+    await _storage.write(
+      key: _ownerSessionStorageKey,
+      value: _profile.phone,
+    );
     if (!mounted) return;
     setState(() {
       _ownerPasswordHash = passwordHash;
+      _isOwnerSessionActive = true;
       _isResettingOwnerPassword = false;
       _loggedInWorker = null;
       _passwordResetWorker = null;
       _tab = 0;
       _showShopSettings = false;
       _stage = _Stage.home;
+    });
+  }
+
+  Future<void> _logout() async {
+    await _storage.delete(key: _ownerSessionStorageKey);
+    if (!mounted) return;
+    setState(() {
+      _isOwnerSessionActive = false;
+      _loggedInWorker = null;
+      _passwordResetWorker = null;
+      _tab = 0;
+      _showShopSettings = false;
+      _stage = _Stage.login;
     });
   }
 
@@ -1121,7 +1151,7 @@ class _LaunchScreenState extends State<LaunchScreen>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 30),
+      duration: const Duration(seconds: 15),
     )..forward();
     _ease = CurvedAnimation(parent: _controller, curve: Curves.easeInOutCubic);
   }

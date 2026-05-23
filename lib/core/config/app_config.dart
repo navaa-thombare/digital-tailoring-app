@@ -30,19 +30,19 @@ class AppConfig {
       );
   static String get ownerName => const String.fromEnvironment(
         'OWNER_NAME',
-        defaultValue: 'Navaa Tailors',
+        defaultValue: '',
       );
   static String get shopName => const String.fromEnvironment(
         'SHOP_NAME',
-        defaultValue: 'Digital Tailoring Studio',
+        defaultValue: '',
       );
   static String get ownerPhone => const String.fromEnvironment(
         'OWNER_PHONE',
-        defaultValue: '9999999999',
+        defaultValue: '',
       );
   static String get shopAddress => const String.fromEnvironment(
         'SHOP_ADDRESS',
-        defaultValue: 'Shop No. 12, Main Road, Near Landmark',
+        defaultValue: '',
       );
   static int get sessionTtlDays =>
       int.tryParse(
@@ -58,18 +58,17 @@ class AppConfig {
       supabaseUrl.isNotEmpty && supabasePublishableKey.isNotEmpty;
 
   static void validateForStartup() {
-    if (!isProduction && ownerDefaultPassword.isEmpty) {
+    if (ownerDefaultPassword.isEmpty) {
       throw const AppException(
         'OWNER_DEFAULT_PASSWORD is required in config/owner.json.',
       );
     }
-    if (!isProduction &&
-        (ownerName.isEmpty ||
-            shopName.isEmpty ||
-            ownerPhone.isEmpty ||
-            shopAddress.isEmpty)) {
+    if (ownerName.isEmpty ||
+        shopName.isEmpty ||
+        ownerPhone.isEmpty ||
+        shopAddress.isEmpty) {
       throw const AppException(
-        'Development builds require owner details in config/owner.json.',
+        'Owner details are required in config/owner.json.',
       );
     }
     if (supabaseUrl.isNotEmpty && !supabaseUrl.startsWith('https://')) {

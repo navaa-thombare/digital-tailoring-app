@@ -26,7 +26,7 @@ The Android project has two flavors:
 | Flavor | Use | Configuration |
 | --- | --- | --- |
 | `dev` | Local Android emulator and development testing | `config/dev.json` and `config/owner.json` |
-| `prod` | Signed store release connected to Supabase | `config/prod.json` |
+| `prod` | Signed store release connected to Supabase | `config/prod.json` and `config/owner.json` |
 
 Configuration files are excluded from Git. Create them from the templates in
 `config/`, or convert the existing ignored `.env` file:
@@ -46,7 +46,10 @@ For the development build, copy `config/owner.example.json` to the ignored
 phone number, shop address and default first-login password. The phone number
 is the owner's login username. The owner must reset the configured default
 password after the first successful login; the changed password is stored
-securely on the emulator/device.
+securely on the emulator/device. After the new owner password has been used
+successfully, the installed app restores the owner session without asking for
+the password again. Selecting Logout clears that saved session. This behavior
+is enabled for both `dev` and `prod` builds.
 
 ## Run Dev On Android
 
@@ -55,6 +58,19 @@ securely on the emulator/device.
 ```
 
 This installs `Digital Tailoring Dev` alongside a production installation.
+The initial launch animation is displayed for 15 seconds.
+
+Build an installable dev APK without launching an emulator:
+
+```powershell
+.\tool\build_dev.ps1
+```
+
+The dev APK is generated at:
+
+```text
+build\app\outputs\flutter-apk\app-dev-debug.apk
+```
 
 ## Supabase Production Backend
 
@@ -90,11 +106,45 @@ Back up `android/digital-tailoring-release.jks` and
 `android/key.properties` securely. Future upgrades of the installed app must
 be signed with the same keystore.
 
+## Jenkins Dev APK Publication
+
+The root `Jenkinsfile` builds the installable `dev` debug APK on a Windows
+Jenkins agent and publishes it to a Nexus raw hosted repository. Configure the
+pipeline job to check out the `dev` branch.
+
+Prerequisites on the Jenkins agent:
+
+- Flutter and Android SDK are available on `PATH`.
+- `curl.exe` is available.
+- A Nexus raw hosted repository named `mobile-apps` exists, or set the
+  `NEXUS_RAW_REPOSITORY` build parameter to the configured raw repository.
+
+Create these Jenkins credentials:
+
+| Credential ID | Type | Use |
+| --- | --- | --- |
+| `digital-tailoring-dev-owner-default-password` | Secret text | Test-only owner first-login password built into the dev APK |
+| `nexus-admin` | Username with password | Nexus upload access |
+
+The pipeline accepts the Nexus base URL and owner/shop values as build
+parameters, generates ignored `config/dev.json` and `config/owner.json` only
+inside the Jenkins workspace, runs analysis, builds the APK, uploads it, and
+then deletes those generated config files.
+
+With the default repository name, the uploaded artifact path is:
+
+```text
+/repository/mobile-apps/digital-tailoring/dev/<version>/digital-tailoring-dev-<version>-build-<build-number>.apk
+```
+
+The password in a dev APK is only a test bootstrap password; do not reuse a
+production owner password as a Jenkins development credential.
+
 ## Verification
 
 Verified in this workspace:
 
 ```powershell
 C:\src\flutter\bin\flutter.bat analyze
-C:\src\flutter\bin\flutter.bat build apk --debug --flavor dev --dart-define-from-file=config/dev.json --dart-define-from-file=config/owner.json
+.\tool\build_dev.ps1
 ```
