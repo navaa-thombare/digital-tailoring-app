@@ -66,9 +66,9 @@ class StoreDetailsScreen extends ConsumerWidget {
                             ),
                             FilledButton.icon(
                               onPressed: () =>
-                                  context.go('/stores/$storeId/admin'),
-                              icon: const Icon(Icons.admin_panel_settings),
-                              label: const Text('Create Admin'),
+                                  context.go('/stores/$storeId/workers/new'),
+                              icon: const Icon(Icons.person_add_alt_1),
+                              label: const Text('Create Worker'),
                             ),
                             FilledButton.icon(
                               onPressed: () =>

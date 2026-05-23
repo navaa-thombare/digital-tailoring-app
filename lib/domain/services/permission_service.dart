@@ -44,11 +44,9 @@ class PermissionService extends DatabaseDao {
 
   Future<bool> canAccessRoute({
     required String userId,
-    required bool isSuperadmin,
     required String? storeId,
     required String routePath,
   }) async {
-    if (isSuperadmin) return true;
     if (await isStoreExpired(storeId)) {
       return routePath == '/store-usage-blocked' || routePath == '/profile';
     }
@@ -58,7 +56,7 @@ class PermissionService extends DatabaseDao {
   }
 
   static const _routePermissions = <String, List<String>>{
-    '/dashboard': ['dashboard.global.view', 'store.dashboard.view'],
+    '/dashboard': ['store.dashboard.view'],
     '/stores': ['stores.view'],
     '/roles': ['roles.view'],
     '/permissions': ['permissions.view'],

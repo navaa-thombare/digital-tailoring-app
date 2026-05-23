@@ -7,18 +7,17 @@ import '../../../shared/widgets/app_header.dart';
 import '../../../shared/widgets/app_shell.dart';
 import '../../../shared/widgets/form_field_view.dart';
 
-class StoreAdminCreationScreen extends ConsumerStatefulWidget {
-  const StoreAdminCreationScreen({super.key, required this.storeId});
+class WorkerCreationScreen extends ConsumerStatefulWidget {
+  const WorkerCreationScreen({super.key, required this.storeId});
 
   final String storeId;
 
   @override
-  ConsumerState<StoreAdminCreationScreen> createState() =>
-      _StoreAdminCreationScreenState();
+  ConsumerState<WorkerCreationScreen> createState() =>
+      _WorkerCreationScreenState();
 }
 
-class _StoreAdminCreationScreenState
-    extends ConsumerState<StoreAdminCreationScreen> {
+class _WorkerCreationScreenState extends ConsumerState<WorkerCreationScreen> {
   final _formKey = GlobalKey<FormState>();
   final _fullName = TextEditingController();
   final _email = TextEditingController();
@@ -44,7 +43,7 @@ class _StoreAdminCreationScreenState
     if (!_formKey.currentState!.validate()) return;
     try {
       final actor = ref.read(authControllerProvider).value?.userId;
-      await ref.read(userRepositoryProvider).createStoreAdmin(
+      await ref.read(userRepositoryProvider).createWorker(
             storeId: widget.storeId,
             fullName: _fullName.text,
             email: _email.text,
@@ -55,7 +54,7 @@ class _StoreAdminCreationScreenState
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('Store admin created with temporary password.')),
+              content: Text('Worker created with temporary password.')),
         );
         _fullName.clear();
         _email.clear();
@@ -66,7 +65,7 @@ class _StoreAdminCreationScreenState
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
               content: Text(
-                  'Unable to create store admin. Email/mobile must be unique.')),
+                  'Unable to create worker. Email/mobile must be unique.')),
         );
       }
     }
@@ -75,12 +74,12 @@ class _StoreAdminCreationScreenState
   @override
   Widget build(BuildContext context) {
     return AppShell(
-      title: 'Create Store Admin',
+      title: 'Create Worker',
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           const AppHeader(
-            title: 'Store Admin User',
+            title: 'Shop Worker',
             subtitle:
                 'The user is forced to change this temporary password on first login.',
           ),
@@ -125,7 +124,7 @@ class _StoreAdminCreationScreenState
                 FilledButton.icon(
                   onPressed: _create,
                   icon: const Icon(Icons.person_add),
-                  label: const Text('Create Admin'),
+                  label: const Text('Create Worker'),
                 ),
               ],
             ),

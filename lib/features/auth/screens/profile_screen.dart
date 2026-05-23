@@ -30,8 +30,6 @@ class ProfileScreen extends ConsumerWidget {
                   Text('Email: ${user['email'] ?? ''}'),
                   Text('Username: ${user['username'] ?? ''}'),
                   Text('Mobile: ${user['mobile'] ?? '-'}'),
-                  Text(
-                      'Superadmin: ${user['is_superadmin'] == 1 ? 'Yes' : 'No'}'),
                 ],
               ),
             ),

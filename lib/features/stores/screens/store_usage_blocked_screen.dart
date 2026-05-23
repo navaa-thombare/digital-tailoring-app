@@ -15,15 +15,14 @@ class StoreUsageBlockedScreen extends StatelessWidget {
           AppHeader(
             title: 'Store Usage Expired',
             subtitle:
-                'Store-level modules are blocked until usage is renewed by superadmin.',
+                'Store-level modules are blocked until usage is renewed by the shop owner.',
           ),
           Padding(
             padding: EdgeInsets.all(16),
             child: Card(
               child: Padding(
                 padding: EdgeInsets.all(16),
-                child: Text(
-                    'Contact platform support or ask superadmin to renew the usage period.'),
+                child: Text('Ask the shop owner to renew the usage period.'),
               ),
             ),
           ),

@@ -63,8 +63,7 @@ class _StoreUsagePeriodScreenState
 
   @override
   Widget build(BuildContext context) {
-    final isSuperadmin =
-        ref.watch(authControllerProvider).value?.isSuperadmin ?? false;
+    final isOwner = ref.watch(authControllerProvider).value != null;
     return AppShell(
       title: 'Usage Period',
       child: FutureBuilder<Map<String, Object?>?>(
@@ -113,12 +112,12 @@ class _StoreUsagePeriodScreenState
                             .map((days) => DropdownMenuItem(
                                 value: days, child: Text('$days days')))
                             .toList(),
-                        onChanged: isSuperadmin
+                        onChanged: isOwner
                             ? (value) => setState(() => _period = value!)
                             : null,
                       ),
                       const SizedBox(height: 16),
-                      if (isSuperadmin)
+                      if (isOwner)
                         Wrap(
                           spacing: 8,
                           runSpacing: 8,
@@ -137,7 +136,7 @@ class _StoreUsagePeriodScreenState
                         )
                       else
                         const Text(
-                            'Only superadmin can update or renew usage period.'),
+                            'Only the shop owner can update or renew usage period.'),
                     ],
                   ),
                 ),

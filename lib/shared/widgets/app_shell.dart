@@ -22,10 +22,8 @@ class AppShell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(authControllerProvider).value;
     final path = GoRouterState.of(context).matchedLocation;
-    final canShow = session == null ||
-        session.isSuperadmin ||
-        path == '/profile' ||
-        path == '/store-usage-blocked';
+    final canShow =
+        session == null || path == '/profile' || path == '/store-usage-blocked';
     return Scaffold(
       appBar: AppBar(title: Text(title)),
       drawer: const AppDrawer(),

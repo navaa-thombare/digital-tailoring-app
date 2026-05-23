@@ -1,8 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 
-import '../config/app_config.dart';
 import '../constants/app_constants.dart';
-import '../security/password_hasher.dart';
 import '../utils/app_date_utils.dart';
 import '../utils/uuid_utils.dart';
 
@@ -16,14 +14,12 @@ class DatabaseSeed {
       await _seedFeatures(txn, now);
       await _seedStoreTypes(txn, now);
       await _seedStoreTypeFeatures(txn, now);
-      await _seedSuperadmin(txn, now);
     });
   }
 
   Future<void> _seedRoles(Transaction txn, String now) async {
     final roles = [
-      _role('superadmin', 'Superadmin', AppConstants.globalScope, true),
-      _role('admin', 'Store Admin', AppConstants.storeScope, true),
+      _role('owner', 'Owner', AppConstants.storeScope, true),
       _role('manager', 'Manager', AppConstants.storeScope, true),
       _role('accountant', 'Accountant', AppConstants.storeScope, true),
       _role('worker', 'Worker', AppConstants.storeScope, true),
@@ -39,10 +35,10 @@ class DatabaseSeed {
   }
 
   Future<void> _seedPermissions(Transaction txn, String now) async {
-    for (final code in _globalPermissions) {
+    for (final code in _ownerPermissions) {
       await txn.insert(
         'permissions',
-        _permission(code, AppConstants.globalScope, now),
+        _permission(code, AppConstants.storeScope, now),
         conflictAlgorithm: ConflictAlgorithm.ignore,
       );
     }
@@ -57,8 +53,7 @@ class DatabaseSeed {
 
   Future<void> _seedRolePermissions(Transaction txn, String now) async {
     final mappings = <String, List<String>>{
-      'superadmin': _globalPermissions,
-      'admin': _storePermissions,
+      'owner': _ownerPermissions,
       'manager': [
         'store.dashboard.view',
         'store.users.view',
@@ -166,60 +161,6 @@ class DatabaseSeed {
     }
   }
 
-  Future<void> _seedSuperadmin(Transaction txn, String now) async {
-    final userId = _id('user', 'superadmin');
-    final existing = Sqflite.firstIntValue(
-      await txn.rawQuery('SELECT COUNT(1) FROM users WHERE id = ?', [userId]),
-    );
-    if (existing != 0) return;
-
-    // To replace this safely, change SUPERADMIN_DEFAULT_PASSWORD in .env and
-    // reset the development database before first seed. Passwords are never
-    // stored as plain text; this inserts only the bcrypt hash.
-    final passwordHash = const PasswordHasher().hash(
-      AppConfig.superadminDefaultPassword,
-    );
-    await txn.insert('users', {
-      'id': userId,
-      'store_id': null,
-      'username': AppConfig.superadminUsername,
-      'email': AppConfig.superadminEmail,
-      'mobile': AppConfig.superadminMobile,
-      'password_hash': passwordHash,
-      'full_name': AppConfig.superadminFullName,
-      'is_superadmin': 1,
-      'is_active': 1,
-      'force_password_change': 0,
-      'temporary_password': 0,
-      'created_at': now,
-    });
-    await txn.insert(
-      'user_roles',
-      {
-        'id': _id('user_role', 'superadmin:superadmin'),
-        'user_id': userId,
-        'role_id': _id('role', 'superadmin'),
-        'store_id': null,
-        'created_at': now,
-      },
-      conflictAlgorithm: ConflictAlgorithm.ignore,
-    );
-    await txn.insert(
-      'audit_logs',
-      {
-        'id': _id('audit', 'seed:superadmin'),
-        'actor_user_id': userId,
-        'action_type': 'SUPERADMIN_SEEDED',
-        'entity_type': 'users',
-        'entity_id': userId,
-        'new_value': '{"email":"${AppConfig.superadminEmail}"}',
-        'remarks': 'Default superadmin seeded during local database creation.',
-        'created_at': now,
-      },
-      conflictAlgorithm: ConflictAlgorithm.ignore,
-    );
-  }
-
   Map<String, Object?> _role(
     String code,
     String name,
@@ -262,8 +203,11 @@ class DatabaseSeed {
         .join(' ');
   }
 
-  static const _globalPermissions = [
-    'dashboard.global.view',
+  static const _ownerPermissions = [
+    'store.dashboard.view',
+    'store.users.view',
+    'store.users.create',
+    'store.users.update',
     'roles.view',
     'roles.create',
     'roles.update',
@@ -288,10 +232,6 @@ class DatabaseSeed {
     'stores.activate',
     'stores.deactivate',
     'store_usage_limits.manage',
-    'store_admins.create',
-    'store_admins.update',
-    'store_admins.activate',
-    'store_admins.deactivate',
     'audit_logs.view',
   ];
 

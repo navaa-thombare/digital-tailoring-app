@@ -9,8 +9,8 @@ import '../../../shared/widgets/data_table_view.dart';
 import '../../../shared/widgets/loading_view.dart';
 import '../../../shared/widgets/metric_card.dart';
 
-class SuperadminDashboardScreen extends ConsumerWidget {
-  const SuperadminDashboardScreen({super.key});
+class OwnerDashboardScreen extends ConsumerWidget {
+  const OwnerDashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -18,7 +18,7 @@ class SuperadminDashboardScreen extends ConsumerWidget {
     return AppShell(
       title: 'Dashboard',
       child: FutureBuilder<DashboardMetrics>(
-        future: service.superadminMetrics(),
+        future: service.ownerMetrics(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const LoadingView();
           final metrics = snapshot.data!;
@@ -28,8 +28,8 @@ class SuperadminDashboardScreen extends ConsumerWidget {
               padding: const EdgeInsets.only(bottom: 24),
               children: [
                 const AppHeader(
-                  title: 'Global Dashboard',
-                  subtitle: 'Store, user, licensing, and audit overview.',
+                  title: 'Owner Dashboard',
+                  subtitle: 'Shop, worker and audit overview.',
                 ),
                 Padding(
                   padding: const EdgeInsets.all(16),
@@ -51,10 +51,7 @@ class SuperadminDashboardScreen extends ConsumerWidget {
                               metrics.expiredStores, Icons.warning),
                           _metric(itemWidth, 'Total Users', metrics.totalUsers,
                               Icons.people),
-                          _metric(
-                              itemWidth,
-                              'Store Admins',
-                              metrics.totalStoreAdmins,
+                          _metric(itemWidth, 'Workers', metrics.totalWorkers,
                               Icons.admin_panel_settings),
                         ],
                       );

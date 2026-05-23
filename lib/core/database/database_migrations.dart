@@ -92,7 +92,6 @@ class DatabaseMigrations {
           mobile TEXT UNIQUE,
           password_hash TEXT NOT NULL,
           full_name TEXT NOT NULL,
-          is_superadmin INTEGER NOT NULL DEFAULT 0 CHECK (is_superadmin IN (0, 1)),
           is_active INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0, 1)),
           force_password_change INTEGER NOT NULL DEFAULT 0
             CHECK (force_password_change IN (0, 1)),

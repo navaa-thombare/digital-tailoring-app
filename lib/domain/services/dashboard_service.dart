@@ -9,7 +9,7 @@ class DashboardMetrics {
     required this.inactiveStores,
     required this.expiredStores,
     required this.totalUsers,
-    required this.totalStoreAdmins,
+    required this.totalWorkers,
     required this.storesByType,
     required this.recentStores,
     required this.recentAuditLogs,
@@ -20,14 +20,14 @@ class DashboardMetrics {
   final int inactiveStores;
   final int expiredStores;
   final int totalUsers;
-  final int totalStoreAdmins;
+  final int totalWorkers;
   final List<Map<String, Object?>> storesByType;
   final List<Map<String, Object?>> recentStores;
   final List<Map<String, Object?>> recentAuditLogs;
 }
 
 class DashboardService extends DatabaseDao {
-  Future<DashboardMetrics> superadminMetrics() async {
+  Future<DashboardMetrics> ownerMetrics() async {
     final database = await db;
     Future<int> count(String sql, [List<Object?> args = const []]) async {
       return Sqflite.firstIntValue(await database.rawQuery(sql, args)) ?? 0;
@@ -63,12 +63,12 @@ class DashboardService extends DatabaseDao {
       expiredStores: await count(
           'SELECT COUNT(1) FROM stores WHERE status = ?', ['EXPIRED']),
       totalUsers: await count('SELECT COUNT(1) FROM users'),
-      totalStoreAdmins: await count('''
+      totalWorkers: await count('''
         SELECT COUNT(DISTINCT u.id)
         FROM users u
         INNER JOIN user_roles ur ON ur.user_id = u.id
         INNER JOIN roles r ON r.id = ur.role_id
-        WHERE r.code = 'admin'
+        WHERE r.code <> 'owner'
       '''),
       storesByType: storesByType,
       recentStores: recentStores,

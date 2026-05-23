@@ -10,9 +10,9 @@ class AppDrawer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(authControllerProvider).value;
-    final isSuperadmin = session?.isSuperadmin ?? false;
+    final isOwner = session != null;
     final currentPath = GoRouterState.of(context).matchedLocation;
-    final destinations = _destinations(isSuperadmin);
+    final destinations = _destinations(isOwner);
 
     Future<void> logout() async {
       await ref.read(authControllerProvider.notifier).logout();
@@ -49,7 +49,7 @@ class AppDrawer extends ConsumerWidget {
     );
   }
 
-  List<_DrawerDestination> _destinations(bool isSuperadmin) {
+  List<_DrawerDestination> _destinations(bool isOwner) {
     return [
       const _DrawerDestination(
         route: '/dashboard',
@@ -59,7 +59,7 @@ class AppDrawer extends ConsumerWidget {
           label: Text('Dashboard'),
         ),
       ),
-      if (isSuperadmin) ...const [
+      if (isOwner) ...const [
         _DrawerDestination(
           route: '/stores',
           widget: NavigationDrawerDestination(

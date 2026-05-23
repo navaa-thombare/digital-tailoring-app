@@ -4,7 +4,14 @@
 .packages
 build/
 .env
+config/dev.json
+config/prod.json
+config/owner.json
 *.db
 *.sqlite
 *.sqlite3
 android/local.properties
+android/.kotlin/
+android/key.properties
+*.jks
+*.keystore

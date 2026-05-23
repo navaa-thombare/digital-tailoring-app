@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:barcode/barcode.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -8,12 +7,17 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
+import 'core/config/app_config.dart';
+import 'core/security/password_hasher.dart';
+
 const _brand = Color(0xFF7A3F19);
 const _brandDark = Color(0xFF2D160B);
 const _accent = Color(0xFFC68A43);
 const _surface = Color(0xFFFFF8F0);
 const _ink = Color(0xFF261B14);
 const _languageStorageKey = 'app_language';
+const _ownerPhoneStorageKey = 'configured_owner_phone';
+const _ownerPasswordHashStorageKey = 'configured_owner_password_hash';
 
 enum AppLanguage { en, mr }
 
@@ -454,6 +458,9 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   ShopWorker? _loggedInWorker;
   ShopWorker? _passwordResetWorker;
+  bool _isResettingOwnerPassword = false;
+  bool _ownerCredentialsLoaded = false;
+  String? _ownerPasswordHash;
 
   final List<TailorCustomer> _customers = [
     TailorCustomer(
@@ -638,19 +645,21 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
     ),
   ];
 
-  ShopProfile _profile = const ShopProfile(
-    ownerName: 'Navaa Tailors',
-    shopName: 'Digital Tailoring Studio',
-    phone: '9999999999',
-    address: 'Shop No. 12, Main Road, Near Landmark',
-    maxOrdersPerDay: 12,
-    openDays: '24/7',
-  );
+  late ShopProfile _profile;
 
   @override
   void initState() {
     super.initState();
+    _profile = ShopProfile(
+      ownerName: AppConfig.ownerName,
+      shopName: AppConfig.shopName,
+      phone: AppConfig.ownerPhone,
+      address: AppConfig.shopAddress,
+      maxOrdersPerDay: 12,
+      openDays: '24/7',
+    );
     _loadLanguage();
+    _loadOwnerCredentials();
     _completeLaunchAnimation();
   }
 
@@ -675,6 +684,30 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
       value: language == AppLanguage.mr ? 'mr' : 'en',
     );
   }
+
+  Future<void> _loadOwnerCredentials() async {
+    final storedPhone = await _storage.read(key: _ownerPhoneStorageKey);
+    final passwordHash = await _storage.read(key: _ownerPasswordHashStorageKey);
+    if (!mounted) return;
+    setState(() {
+      if (storedPhone == _profile.phone && passwordHash != null) {
+        _ownerPasswordHash = passwordHash;
+      }
+      _ownerCredentialsLoaded = true;
+    });
+  }
+
+  ShopWorker get _ownerPasswordResetIdentity => ShopWorker(
+        name: _profile.ownerName,
+        mobile: _profile.phone,
+        speciality: 'owner',
+        roles: const ['owner'],
+        username: _profile.phone,
+        defaultPassword: AppConfig.ownerDefaultPassword,
+        password: AppConfig.ownerDefaultPassword,
+        mustResetPassword: true,
+        walletBalance: 0,
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -723,15 +756,14 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
           _Stage.launch => const LaunchScreen(),
           _Stage.welcome => WelcomeScreen(
               onLogin: () => setState(() => _stage = _Stage.login),
-              onGetStarted: () => setState(() => _stage = _Stage.setup),
             ),
           _Stage.login => LoginScreen(
-              onBack: () => setState(() => _stage = _Stage.welcome),
+              configuredPhone: _profile.phone,
               onLogin: _attemptLogin,
             ),
           _Stage.passwordReset => PasswordResetScreen(
               worker: _passwordResetWorker!,
-              onPasswordChanged: _resetWorkerPassword,
+              onPasswordChanged: _resetPassword,
             ),
           _Stage.setup => SetupScreen(
               profile: _profile,
@@ -767,7 +799,7 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
                 _passwordResetWorker = null;
                 _tab = 0;
                 _showShopSettings = false;
-                _stage = _Stage.welcome;
+                _stage = _Stage.login;
               }),
               onCustomerSaved: _saveCustomer,
               onTemplateSaved: _saveTemplate,
@@ -785,15 +817,39 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
   LoginResult _attemptLogin(String username, String password) {
     final normalized = username.trim();
     final enteredPassword = password.trim();
-    if (normalized == _profile.phone && enteredPassword == 'password') {
+    if (normalized == _profile.phone) {
+      if (!_ownerCredentialsLoaded) {
+        return const LoginResult.failure(
+          'Owner account is still loading. Please try again.',
+        );
+      }
+      final hasNewPassword = _ownerPasswordHash != null;
+      final validPassword = hasNewPassword
+          ? const PasswordHasher().verify(
+              enteredPassword,
+              _ownerPasswordHash!,
+            )
+          : enteredPassword == AppConfig.ownerDefaultPassword;
+      if (!validPassword) {
+        return const LoginResult.failure(
+          'Invalid mobile number or password.',
+        );
+      }
       setState(() {
-        _loggedInWorker = null;
-        _passwordResetWorker = null;
         _tab = 0;
         _showShopSettings = false;
-        _stage = _Stage.home;
+        if (hasNewPassword) {
+          _loggedInWorker = null;
+          _passwordResetWorker = null;
+          _isResettingOwnerPassword = false;
+          _stage = _Stage.home;
+        } else {
+          _isResettingOwnerPassword = true;
+          _passwordResetWorker = _ownerPasswordResetIdentity;
+          _stage = _Stage.passwordReset;
+        }
       });
-      return const LoginResult.success();
+      return LoginResult.success(forceReset: !hasNewPassword);
     }
 
     for (final worker in _workers) {
@@ -802,6 +858,7 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
         setState(() {
           _tab = 0;
           _showShopSettings = false;
+          _isResettingOwnerPassword = false;
           if (worker.mustResetPassword) {
             _passwordResetWorker = worker;
             _stage = _Stage.passwordReset;
@@ -818,6 +875,29 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
     return const LoginResult.failure('Invalid mobile number or password.');
   }
 
+  Future<void> _resetPassword(String password) async {
+    if (!_isResettingOwnerPassword) {
+      _resetWorkerPassword(password);
+      return;
+    }
+    final passwordHash = const PasswordHasher().hash(password);
+    await _storage.write(key: _ownerPhoneStorageKey, value: _profile.phone);
+    await _storage.write(
+      key: _ownerPasswordHashStorageKey,
+      value: passwordHash,
+    );
+    if (!mounted) return;
+    setState(() {
+      _ownerPasswordHash = passwordHash;
+      _isResettingOwnerPassword = false;
+      _loggedInWorker = null;
+      _passwordResetWorker = null;
+      _tab = 0;
+      _showShopSettings = false;
+      _stage = _Stage.home;
+    });
+  }
+
   void _resetWorkerPassword(String password) {
     final worker = _passwordResetWorker;
     if (worker == null) return;
@@ -831,6 +911,7 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
       _workers[index] = updated;
       _loggedInWorker = updated;
       _passwordResetWorker = null;
+      _isResettingOwnerPassword = false;
       _tab = 0;
       _showShopSettings = false;
       _stage = _Stage.home;
@@ -1237,11 +1318,9 @@ class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({
     super.key,
     required this.onLogin,
-    required this.onGetStarted,
   });
 
   final VoidCallback onLogin;
-  final VoidCallback onGetStarted;
 
   @override
   Widget build(BuildContext context) {
@@ -1284,19 +1363,9 @@ class WelcomeScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 28),
                   FilledButton.icon(
-                    onPressed: onGetStarted,
-                    icon: const Icon(Icons.storefront),
-                    label: Text(tr(context, 'Get Started as Owner')),
-                  ),
-                  const SizedBox(height: 10),
-                  OutlinedButton.icon(
                     onPressed: onLogin,
                     icon: const Icon(Icons.login),
                     label: Text(tr(context, 'Login')),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(color: Colors.white70),
-                    ),
                   ),
                 ],
               ),
@@ -1309,9 +1378,13 @@ class WelcomeScreen extends StatelessWidget {
 }
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key, required this.onBack, required this.onLogin});
+  const LoginScreen({
+    super.key,
+    required this.configuredPhone,
+    required this.onLogin,
+  });
 
-  final VoidCallback onBack;
+  final String configuredPhone;
   final LoginResult Function(String username, String password) onLogin;
 
   @override
@@ -1320,8 +1393,14 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _phone = TextEditingController(text: '9999999999');
-  final _password = TextEditingController(text: 'password');
+  late final TextEditingController _phone;
+  final _password = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _phone = TextEditingController(text: widget.configuredPhone);
+  }
 
   @override
   void dispose() {
@@ -1333,7 +1412,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(leading: BackButton(onPressed: widget.onBack)),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -4599,22 +4677,6 @@ class ProfileTab extends StatefulWidget {
 }
 
 class _ProfileTabState extends State<ProfileTab> {
-  final _whatsAppTemplate = TextEditingController(
-    text: 'Dear <customer_name>,\n'
-        'Your clothes stitching order on <order date> is <order state> due on <due date>. '
-        'Please collect this order by paying <balance amount> as early as possible.\n\n'
-        'Your order details are\n'
-        '<attach customer copy of print receipt>\n\n'
-        'Thanks\n'
-        '<Shop Owner Name>',
-  );
-  bool _printCustomerCopy = true;
-  bool _printShopUseCopy = false;
-  bool _printOnAssignment = false;
-  bool _messageOnOrderReady = true;
-  bool _messageOnInStitching = false;
-  bool _messageOnOrderDelivery = true;
-
   static const List<String> _roles = [
     'manager',
     'cutter',
@@ -4629,40 +4691,12 @@ class _ProfileTabState extends State<ProfileTab> {
   ];
 
   @override
-  void dispose() {
-    _whatsAppTemplate.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: widget.showSettings
           ? [
               _ShopSettingsHeader(profile: widget.profile),
-              const SizedBox(height: 16),
-              _GeneralSettingsCard(
-                printCustomerCopy: _printCustomerCopy,
-                printShopUseCopy: _printShopUseCopy,
-                printOnAssignment: _printOnAssignment,
-                messageOnOrderReady: _messageOnOrderReady,
-                messageOnInStitching: _messageOnInStitching,
-                messageOnOrderDelivery: _messageOnOrderDelivery,
-                whatsAppTemplate: _whatsAppTemplate,
-                onPrintCustomerCopyChanged: (value) =>
-                    setState(() => _printCustomerCopy = value),
-                onPrintShopUseCopyChanged: (value) =>
-                    setState(() => _printShopUseCopy = value),
-                onPrintOnAssignmentChanged: (value) =>
-                    setState(() => _printOnAssignment = value),
-                onMessageOnOrderReadyChanged: (value) =>
-                    setState(() => _messageOnOrderReady = value),
-                onMessageOnInStitchingChanged: (value) =>
-                    setState(() => _messageOnInStitching = value),
-                onMessageOnOrderDeliveryChanged: (value) =>
-                    setState(() => _messageOnOrderDelivery = value),
-              ),
               const SizedBox(height: 16),
               _TemplatesTableCard(
                 templates: widget.templates,
@@ -5013,7 +5047,7 @@ class _ShopSettingsHeader extends StatelessWidget {
     return Card(
       color: const Color(0xFFEFF8FF),
       child: Padding(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(12),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -5097,192 +5131,6 @@ class _ShopInfoPanel extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _GeneralSettingsCard extends StatelessWidget {
-  const _GeneralSettingsCard({
-    required this.printCustomerCopy,
-    required this.printShopUseCopy,
-    required this.printOnAssignment,
-    required this.messageOnOrderReady,
-    required this.messageOnInStitching,
-    required this.messageOnOrderDelivery,
-    required this.whatsAppTemplate,
-    required this.onPrintCustomerCopyChanged,
-    required this.onPrintShopUseCopyChanged,
-    required this.onPrintOnAssignmentChanged,
-    required this.onMessageOnOrderReadyChanged,
-    required this.onMessageOnInStitchingChanged,
-    required this.onMessageOnOrderDeliveryChanged,
-  });
-
-  final bool printCustomerCopy;
-  final bool printShopUseCopy;
-  final bool printOnAssignment;
-  final bool messageOnOrderReady;
-  final bool messageOnInStitching;
-  final bool messageOnOrderDelivery;
-  final TextEditingController whatsAppTemplate;
-  final ValueChanged<bool> onPrintCustomerCopyChanged;
-  final ValueChanged<bool> onPrintShopUseCopyChanged;
-  final ValueChanged<bool> onPrintOnAssignmentChanged;
-  final ValueChanged<bool> onMessageOnOrderReadyChanged;
-  final ValueChanged<bool> onMessageOnInStitchingChanged;
-  final ValueChanged<bool> onMessageOnOrderDeliveryChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.tune_outlined, color: _brand),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    tr(context, 'General Settings'),
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w900,
-                        ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            _SettingsGroup(
-              title: 'Print Settings',
-              children: [
-                _SettingsCheckbox(
-                  title: 'Print customer copy',
-                  value: printCustomerCopy,
-                  onChanged: onPrintCustomerCopyChanged,
-                ),
-                _SettingsCheckbox(
-                  title: 'Print shop use copy',
-                  value: printShopUseCopy,
-                  onChanged: onPrintShopUseCopyChanged,
-                ),
-                _SettingsCheckbox(
-                  title: 'Print on assignment',
-                  value: printOnAssignment,
-                  onChanged: onPrintOnAssignmentChanged,
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            _SettingsGroup(
-              title: 'WhatsApp Messaging settings',
-              children: [
-                _SettingsCheckbox(
-                  title: 'On Order ready',
-                  value: messageOnOrderReady,
-                  onChanged: onMessageOnOrderReadyChanged,
-                ),
-                _SettingsCheckbox(
-                  title: 'On Order "In stitching" status',
-                  value: messageOnInStitching,
-                  onChanged: onMessageOnInStitchingChanged,
-                ),
-                _SettingsCheckbox(
-                  title: 'On order delivery',
-                  value: messageOnOrderDelivery,
-                  onChanged: onMessageOnOrderDeliveryChanged,
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              tr(context, 'WhatsApp message templates'),
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w900,
-                  ),
-            ),
-            const SizedBox(height: 6),
-            TextField(
-              controller: whatsAppTemplate,
-              inputFormatters: localizedTextInputFormatters(context),
-              minLines: 8,
-              maxLines: 12,
-              decoration: InputDecoration(
-                labelText: tr(context, 'Message template'),
-                alignLabelWithHint: true,
-                prefixIcon: const Icon(Icons.chat_outlined),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SettingsGroup extends StatelessWidget {
-  const _SettingsGroup({required this.title, required this.children});
-
-  final String title;
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFFBF6),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFEBD8C4)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 7, 8, 3),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              tr(context, title),
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: _brandDark,
-                    fontWeight: FontWeight.w900,
-                  ),
-            ),
-            const SizedBox(height: 2),
-            ...children,
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SettingsCheckbox extends StatelessWidget {
-  const _SettingsCheckbox({
-    required this.title,
-    required this.value,
-    required this.onChanged,
-  });
-
-  final String title;
-  final bool value;
-  final ValueChanged<bool> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return CheckboxListTile(
-      value: value,
-      dense: true,
-      visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-      checkboxShape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-      contentPadding: EdgeInsets.zero,
-      controlAffinity: ListTileControlAffinity.leading,
-      title: Text(
-        tr(context, title),
-        style: const TextStyle(fontWeight: FontWeight.w700),
-      ),
-      onChanged: (selected) => onChanged(selected ?? false),
     );
   }
 }
@@ -6319,7 +6167,7 @@ class _OrderReceiptDialogState extends State<OrderReceiptDialog> {
                 children: [
                   Expanded(
                     child: Text(
-                      _receiptLabel(context, 'Receipt Preview'),
+                      tr(context, 'Receipt Preview'),
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w900,
                           ),
@@ -6396,7 +6244,7 @@ class _OrderReceiptDialogState extends State<OrderReceiptDialog> {
                   label: Text(
                     _isPrinting
                         ? _receiptLabel(context, 'Printing...')
-                        : _receiptLabel(context, 'Done'),
+                        : tr(context, 'Done'),
                   ),
                 ),
               ),
@@ -6958,22 +6806,14 @@ class _DashedLinePainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-String _receiptBillNumber(String orderId) {
-  final digits = orderId.replaceAll(RegExp(r'\D'), '');
-  if (digits.isEmpty) return orderId;
-  return 'RT-2026-${digits.padLeft(5, '0')}';
-}
-
 String _receiptLabel(BuildContext context, String value) {
   return _receiptLabelForLanguage(AppLanguageScope.of(context).language, value);
 }
 
 String _receiptLabelForLanguage(AppLanguage language, String value) {
   if (language == AppLanguage.en) return value;
-  return _mrReceiptLabels[value] ?? trFallback(value);
+  return _mrReceiptLabels[value] ?? value;
 }
-
-String trFallback(String value) => value;
 
 const Map<String, String> _mrReceiptLabels = {
   'Receipt Preview': 'पावती पूर्वावलोकन',
@@ -6981,7 +6821,6 @@ const Map<String, String> _mrReceiptLabels = {
   'Shop use': 'दुकान वापर',
   'Printing...': 'प्रिंट होत आहे...',
   'Print failed': 'प्रिंट अयशस्वी',
-  'Done': 'पूर्ण',
   'Specialist in Suit, Shirt & Pant Stitching':
       'सूट, शर्ट आणि पॅन्ट शिवणकाम तज्ञ',
   'Mobile': 'मोबाइल',
@@ -7004,22 +6843,11 @@ const Map<String, String> _mrReceiptLabels = {
   'Measurements not added': 'मापे जोडलेली नाहीत',
   'Thank you for visiting!': 'भेट दिल्याबद्दल धन्यवाद!',
   'Please carry this receipt during delivery.\nGoods once stitched cannot be returned.':
-      'डिलिव्हरीवेळी ही पावती सोबत आणा.\\nशिवलेला माल परत घेतला जाणार नाही.',
+      'डिलिव्हरीवेळी ही पावती सोबत आणा.\nशिवलेला माल परत घेतला जाणार नाही.',
   'In Stitching': 'शिवणकामात',
   'Ready': 'तयार',
   'Delivered': 'डिलिव्हर',
 };
-
-String _formatCurrency(int amount) {
-  final text = amount.toString();
-  final buffer = StringBuffer();
-  for (var i = 0; i < text.length; i++) {
-    final remaining = text.length - i;
-    buffer.write(text[i]);
-    if (remaining > 1 && remaining % 3 == 1) buffer.write(',');
-  }
-  return '\u20B9 ${buffer.toString()}.00';
-}
 
 String _measurementSummary(OrderTemplateItem item) {
   if (item.measurements.isEmpty) return 'Measurements not added';
@@ -7048,7 +6876,7 @@ Future<Uint8List> _buildReceiptPdf({
       boldFont = pw.Font.helveticaBold();
     }
   }
-  final base = pw.TextStyle(font: regularFont, fontSize: 8.8, height: 1.15);
+  final regular = pw.TextStyle(font: regularFont, fontSize: 8.8, height: 1.15);
   final bold = pw.TextStyle(
     font: boldFont,
     fontSize: 8.8,
@@ -7056,144 +6884,29 @@ Future<Uint8List> _buildReceiptPdf({
     height: 1.15,
   );
 
-  pw.Widget dashedLine() {
-    return pw.Padding(
-      padding: const pw.EdgeInsets.symmetric(vertical: 4),
-      child: pw.Text('-' * 48, style: base),
-    );
-  }
-
-  pw.Widget infoRow(
-    String leftLabel,
-    String rightValue, {
-    bool rightBold = false,
-  }) {
-    return pw.Row(
-      crossAxisAlignment: pw.CrossAxisAlignment.start,
-      children: [
-        pw.SizedBox(width: 49, child: pw.Text(leftLabel, style: base)),
-        pw.Expanded(
-          child: pw.Text(
-            rightValue,
-            textAlign: pw.TextAlign.right,
-            maxLines: 1,
-            style: rightBold ? bold : base,
-          ),
-        ),
-      ],
-    );
-  }
-
-  pw.Widget itemHeader() {
-    return pw.Row(
-      children: [
-        pw.Expanded(
-          flex: isCustomerCopy ? 5 : 4,
-          child:
-              pw.Text(_receiptLabelForLanguage(language, 'Item'), style: bold),
-        ),
-        pw.Expanded(
-          flex: 2,
-          child: pw.Text(
-            _receiptLabelForLanguage(language, 'Qty'),
-            textAlign: pw.TextAlign.right,
-            style: bold,
-          ),
-        ),
-        if (isCustomerCopy) ...[
-          pw.Expanded(
-            flex: 3,
-            child: pw.Text(
-              _receiptLabelForLanguage(language, 'Rate'),
-              textAlign: pw.TextAlign.right,
-              style: bold,
-            ),
-          ),
-          pw.Expanded(
-            flex: 3,
-            child: pw.Text(
-              _receiptLabelForLanguage(language, 'Amt'),
-              textAlign: pw.TextAlign.right,
-              style: bold,
-            ),
-          ),
-        ] else
-          pw.Expanded(
-            flex: 7,
-            child: pw.Text(
-              _receiptLabelForLanguage(language, 'Measurements'),
-              textAlign: pw.TextAlign.right,
-              style: bold,
-            ),
-          ),
-      ],
-    );
-  }
-
-  pw.Widget itemRow(OrderTemplateItem item) {
-    return pw.Padding(
-      padding: const pw.EdgeInsets.only(bottom: 3),
-      child: pw.Row(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
+  pw.Widget line() => pw.Padding(
+        padding: const pw.EdgeInsets.symmetric(vertical: 4),
+        child: pw.Text('-' * 48, style: regular),
+      );
+  pw.Widget info(String label, String value, {bool strong = false}) => pw.Row(
         children: [
+          pw.SizedBox(width: 54, child: pw.Text(label, style: regular)),
           pw.Expanded(
-            flex: isCustomerCopy ? 5 : 4,
-            child: pw.Text(item.templateName, style: base),
-          ),
-          pw.Expanded(
-            flex: 2,
             child: pw.Text(
-              item.quantity.toString(),
+              value,
               textAlign: pw.TextAlign.right,
-              style: base,
+              style: strong ? bold : regular,
+              maxLines: 1,
             ),
           ),
-          if (isCustomerCopy) ...[
-            pw.Expanded(
-              flex: 3,
-              child: pw.Text(
-                item.rate.toString(),
-                textAlign: pw.TextAlign.right,
-                style: base,
-              ),
-            ),
-            pw.Expanded(
-              flex: 3,
-              child: pw.Text(
-                item.total.toString(),
-                textAlign: pw.TextAlign.right,
-                style: base,
-              ),
-            ),
-          ] else
-            pw.Expanded(
-              flex: 7,
-              child: pw.Text(
-                _measurementSummary(item),
-                textAlign: pw.TextAlign.right,
-                style: base,
-              ),
-            ),
         ],
-      ),
-    );
-  }
-
-  pw.Widget amountRow(
-    String label,
-    int value, {
-    bool large = false,
-    bool strong = false,
-  }) {
-    final style =
-        (large || strong) ? bold.copyWith(fontSize: large ? 12 : 8.8) : base;
-    return pw.Row(
-      children: [
-        pw.Expanded(child: pw.Text(label, style: style)),
-        pw.Text(_formatCurrency(value), style: style),
-      ],
-    );
-  }
+      );
+  pw.Widget amount(String label, int value, {bool strong = false}) => pw.Row(
+        children: [
+          pw.Expanded(child: pw.Text(label, style: strong ? bold : regular)),
+          pw.Text(_formatCurrency(value), style: strong ? bold : regular),
+        ],
+      );
 
   document.addPage(
     pw.Page(
@@ -7203,126 +6916,112 @@ Future<Uint8List> _buildReceiptPdf({
         marginAll: 3 * PdfPageFormat.mm,
       ),
       theme: pw.ThemeData.withFont(base: regularFont, bold: boldFont),
-      build: (_) {
-        return pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.stretch,
-          children: [
-            pw.Align(
-              alignment: pw.Alignment.centerRight,
-              child: pw.Text(
-                '(${_receiptLabelForLanguage(
-                  language,
-                  isCustomerCopy ? 'Customer copy' : 'Shop use',
-                )})',
-                style: base.copyWith(fontSize: 7.5),
-              ),
+      build: (_) => pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+        children: [
+          pw.Text(
+            '(${_receiptLabelForLanguage(language, isCustomerCopy ? 'Customer copy' : 'Shop use')})',
+            textAlign: pw.TextAlign.right,
+            style: regular,
+          ),
+          pw.Text(
+            profile.shopName.toUpperCase(),
+            textAlign: pw.TextAlign.center,
+            style: bold.copyWith(fontSize: 14),
+          ),
+          pw.Text(
+            _receiptLabelForLanguage(
+              language,
+              'Specialist in Suit, Shirt & Pant Stitching',
             ),
-            pw.Text(
-              profile.shopName.toUpperCase(),
-              textAlign: pw.TextAlign.center,
-              style: bold.copyWith(fontSize: 14),
-            ),
-            pw.SizedBox(height: 3),
-            pw.Text(
-              _receiptLabelForLanguage(
-                language,
-                'Specialist in Suit, Shirt & Pant Stitching',
-              ),
-              textAlign: pw.TextAlign.center,
-              style: base,
-            ),
-            pw.Text(profile.address,
-                textAlign: pw.TextAlign.center, style: base),
-            pw.Text(
-              '${_receiptLabelForLanguage(language, 'Mobile')}: ${profile.phone}',
-              textAlign: pw.TextAlign.center,
-              style: base,
-            ),
-            dashedLine(),
-            infoRow(
-              _receiptLabelForLanguage(language, 'Bill No:'),
+            textAlign: pw.TextAlign.center,
+            style: regular,
+          ),
+          pw.Text(profile.address,
+              textAlign: pw.TextAlign.center, style: regular),
+          pw.Text(
+            '${_receiptLabelForLanguage(language, 'Mobile')}: ${profile.phone}',
+            textAlign: pw.TextAlign.center,
+            style: regular,
+          ),
+          line(),
+          info(_receiptLabelForLanguage(language, 'Bill No:'),
               _receiptBillNumber(order.id),
-              rightBold: true,
-            ),
-            infoRow(
-              _receiptLabelForLanguage(language, 'Date:'),
-              _formatReceiptDateTime(order.orderDate),
-            ),
-            infoRow(
-              _receiptLabelForLanguage(language, 'Customer:'),
-              customer.name,
-            ),
-            infoRow(
-              _receiptLabelForLanguage(language, 'Mobile:'),
-              customer.phone,
-            ),
-            infoRow(
-              _receiptLabelForLanguage(language, 'Delivery:'),
-              _formatReceiptDate(order.dueDate),
-            ),
-            dashedLine(),
-            itemHeader(),
-            dashedLine(),
-            for (final item in order.items) itemRow(item),
-            if (isCustomerCopy) ...[
-              dashedLine(),
-              amountRow(
-                  _receiptLabelForLanguage(language, 'Subtotal'), order.amount),
-              amountRow(
-                _receiptLabelForLanguage(language, 'Total'),
-                order.amount,
-                large: true,
+              strong: true),
+          info(_receiptLabelForLanguage(language, 'Date:'),
+              _formatReceiptDateTime(order.orderDate)),
+          info(_receiptLabelForLanguage(language, 'Customer:'), customer.name),
+          info(_receiptLabelForLanguage(language, 'Mobile:'), customer.phone),
+          info(_receiptLabelForLanguage(language, 'Delivery:'),
+              _formatReceiptDate(order.dueDate)),
+          line(),
+          for (final item in order.items)
+            pw.Padding(
+              padding: const pw.EdgeInsets.only(bottom: 3),
+              child: pw.Text(
+                isCustomerCopy
+                    ? '${item.templateName}  x${item.quantity}   ${item.rate}   ${item.total}'
+                    : '${item.templateName}  x${item.quantity}   ${_measurementSummary(item)}',
+                style: regular,
               ),
-              amountRow(_receiptLabelForLanguage(language, 'Paid'),
-                  order.advancePayment),
-              amountRow(
-                _receiptLabelForLanguage(language, 'Balance'),
+            ),
+          if (isCustomerCopy) ...[
+            line(),
+            amount(
+                _receiptLabelForLanguage(language, 'Subtotal'), order.amount),
+            amount(_receiptLabelForLanguage(language, 'Total'), order.amount,
+                strong: true),
+            amount(_receiptLabelForLanguage(language, 'Paid'),
+                order.advancePayment),
+            amount(_receiptLabelForLanguage(language, 'Balance'),
                 order.balanceAmount,
-                strong: true,
-              ),
-              dashedLine(),
-              infoRow(
-                _receiptLabelForLanguage(language, 'Payment Mode:'),
-                order.paymentMode,
-              ),
-              infoRow(
-                _receiptLabelForLanguage(language, 'Order Status:'),
-                _receiptLabelForLanguage(language, order.status),
-              ),
-            ],
-            dashedLine(),
-            pw.Text(
-              _receiptLabelForLanguage(language, 'Thank you for visiting!'),
-              textAlign: pw.TextAlign.center,
-              style: bold,
-            ),
-            pw.SizedBox(height: 2),
-            pw.Text(
-              _receiptLabelForLanguage(
-                language,
-                'Please carry this receipt during delivery.\nGoods once stitched cannot be returned.',
-              ),
-              textAlign: pw.TextAlign.center,
-              style: base,
-            ),
-            pw.SizedBox(height: 8),
-            pw.Center(
-              child: pw.BarcodeWidget(
-                barcode: Barcode.code39(),
-                data: customer.phone.replaceAll(RegExp(r'\D'), ''),
-                width: 112,
-                height: 28,
-                drawText: false,
-              ),
-            ),
-            pw.Text(customer.phone,
-                textAlign: pw.TextAlign.center, style: base),
+                strong: true),
+            line(),
+            info(_receiptLabelForLanguage(language, 'Payment Mode:'),
+                order.paymentMode),
+            info(_receiptLabelForLanguage(language, 'Order Status:'),
+                _receiptLabelForLanguage(language, order.status)),
           ],
-        );
-      },
+          line(),
+          pw.Text(
+            _receiptLabelForLanguage(language, 'Thank you for visiting!'),
+            textAlign: pw.TextAlign.center,
+            style: bold,
+          ),
+          pw.SizedBox(height: 8),
+          pw.Center(
+            child: pw.BarcodeWidget(
+              barcode: Barcode.code39(),
+              data: customer.phone.replaceAll(RegExp(r'\D'), ''),
+              width: 112,
+              height: 28,
+              drawText: false,
+            ),
+          ),
+          pw.Text(customer.phone,
+              textAlign: pw.TextAlign.center, style: regular),
+        ],
+      ),
     ),
   );
   return document.save();
+}
+
+String _receiptBillNumber(String orderId) {
+  final digits = orderId.replaceAll(RegExp(r'\D'), '');
+  if (digits.isEmpty) return orderId;
+  return 'RT-2026-${digits.padLeft(5, '0')}';
+}
+
+String _formatCurrency(int amount) {
+  final text = amount.toString();
+  final buffer = StringBuffer();
+  for (var i = 0; i < text.length; i++) {
+    final remaining = text.length - i;
+    buffer.write(text[i]);
+    if (remaining > 1 && remaining % 3 == 1) buffer.write(',');
+  }
+  return '₹ ${buffer.toString()}.00';
 }
 
 class _SelectedCustomerCard extends StatelessWidget {

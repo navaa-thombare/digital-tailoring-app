@@ -14,7 +14,6 @@ class AuthSession {
   final String sessionToken;
 
   String get userId => user['id'] as String;
-  bool get isSuperadmin => user['is_superadmin'] == 1;
   bool get forcePasswordChange => user['force_password_change'] == 1;
   String? get storeId => user['store_id'] as String?;
   String get fullName => user['full_name'] as String;

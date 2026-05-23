@@ -6,13 +6,13 @@ import '../features/auth/controllers/auth_controller.dart';
 import '../features/auth/screens/force_password_change_screen.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/profile_screen.dart';
-import '../features/dashboard/screens/superadmin_dashboard_screen.dart';
+import '../features/dashboard/screens/owner_dashboard_screen.dart';
 import '../features/features_console/screens/features_console_screen.dart';
 import '../features/licensing/screens/licensing_screen.dart';
 import '../features/permissions/screens/permissions_screen.dart';
 import '../features/roles/screens/role_edit_screen.dart';
 import '../features/roles/screens/roles_console_screen.dart';
-import '../features/stores/screens/store_admin_creation_screen.dart';
+import '../features/stores/screens/worker_creation_screen.dart';
 import '../features/stores/screens/store_details_screen.dart';
 import '../features/stores/screens/store_form_screen.dart';
 import '../features/stores/screens/store_list_screen.dart';
@@ -50,7 +50,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
           path: '/dashboard',
-          builder: (context, state) => const SuperadminDashboardScreen()),
+          builder: (context, state) => const OwnerDashboardScreen()),
       GoRoute(
           path: '/profile', builder: (context, state) => const ProfileScreen()),
       GoRoute(
@@ -87,8 +87,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(
-        path: '/stores/:storeId/admin',
-        builder: (context, state) => StoreAdminCreationScreen(
+        path: '/stores/:storeId/workers/new',
+        builder: (context, state) => WorkerCreationScreen(
           storeId: state.pathParameters['storeId']!,
         ),
       ),
