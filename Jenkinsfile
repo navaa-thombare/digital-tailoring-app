@@ -60,14 +60,14 @@ Path('config/dev.json').write_text(json.dumps({
     'SUPABASE_URL': '',
     'SUPABASE_PUBLISHABLE_KEY': '',
     'SESSION_TTL_DAYS': '7',
-}, indent=2) + '\n', encoding='utf-8')
+}, indent=2), encoding='utf-8')
 Path('config/owner.json').write_text(json.dumps({
     'OWNER_NAME': os.environ['DEV_OWNER_NAME'],
     'SHOP_NAME': os.environ['DEV_SHOP_NAME'],
     'OWNER_PHONE': os.environ['DEV_OWNER_PHONE'],
     'SHOP_ADDRESS': os.environ['DEV_SHOP_ADDRESS'],
     'OWNER_DEFAULT_PASSWORD': os.environ['OWNER_DEFAULT_PASSWORD'],
-}, indent=2) + '\n', encoding='utf-8')
+}, indent=2), encoding='utf-8')
 PY
                     '''
                 }
