@@ -1,0 +1,4 @@
+DevHandler: Failed to create WebSocket debug connection: DartDevelopmentServiceException: WebSocketChannelException: WebSocketException: Connection to 'http://127.0.0.1:63542/EMhAMmo39fQ=/ws#' was not upgraded to websocket
+
+Failed to create WebSocket debug connection: DartDevelopmentServiceException: WebSocketChannelException: WebSocketException: Connection to 'http://127.0.0.1:63542/EMhAMmo39fQ=/ws#' was not upgraded to websocket
+

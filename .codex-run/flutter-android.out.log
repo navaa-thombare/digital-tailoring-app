@@ -1,0 +1,792 @@
+Launching lib\main.dart on sdk gphone64 x86 64 in debug mode...
+Running Gradle task 'assembleDebug'...                          
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>if "Windows_NT" == "Windows_NT" setlocal
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>set DEFAULT_JVM_OPTS= 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>set DIRNAME=D:\application-development\vercel-app-building\flutter-app-vscode\android\ 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>if "D:\application-development\vercel-app-building\flutter-app-vscode\android\" == "" set DIRNAME=. 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>set APP_BASE_NAME=gradlew 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>set APP_HOME=D:\application-development\vercel-app-building\flutter-app-vscode\android\ 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>if defined JAVA_HOME goto findJavaFromJavaHome 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>set JAVA_EXE=java.exe 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>java.exe -version  1>NUL 2>&1 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>if "0" == "0" goto init 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>if not "Windows_NT" == "Windows_NT" goto win9xME_args 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>if "@eval[2+2]" == "4" goto 4NT_args 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>set CMD_LINE_ARGS= 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>set _SKIP=2 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>if "x-q" == "x" goto execute 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>set CMD_LINE_ARGS=-q -Ptarget-platform=android-x64 -Ptarget=D:\application-development\vercel-app-building\flutter-app-vscode\lib\main.dart -Pbase-application-name=android.app.Application -Pdart-defines=RkxVVFRFUl9WRVJTSU9OPTMuNDEuOQ==,RkxVVFRFUl9DSEFOTkVMPXN0YWJsZQ==,RkxVVFRFUl9HSVRfVVJMPWh0dHBzOi8vZ2l0aHViLmNvbS9mbHV0dGVyL2ZsdXR0ZXIuZ2l0,RkxVVFRFUl9GUkFNRVdPUktfUkVWSVNJT049MDBiMGM5MWYwNg==,RkxVVFRFUl9FTkdJTkVfUkVWSVNJT049NDJkM2Q3NWE1Ng==,RkxVVFRFUl9EQVJUX1ZFUlNJT049My4xMS41 -Pdart-obfuscation=false -Ptrack-widget-creation=true -Ptree-shake-icons=false -Pfilesystem-scheme=org-dartlang-root assembleDebug 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>goto execute 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>set CLASSPATH=D:\application-development\vercel-app-building\flutter-app-vscode\android\\gradle\wrapper\gradle-wrapper.jar 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>"java.exe"    "-Dorg.gradle.appname=gradlew" -classpath "D:\application-development\vercel-app-building\flutter-app-vscode\android\\gradle\wrapper\gradle-wrapper.jar" org.gradle.wrapper.GradleWrapperMain -q -Ptarget-platform=android-x64 -Ptarget=D:\application-development\vercel-app-building\flutter-app-vscode\lib\main.dart -Pbase-application-name=android.app.Application -Pdart-defines=RkxVVFRFUl9WRVJTSU9OPTMuNDEuOQ==,RkxVVFRFUl9DSEFOTkVMPXN0YWJsZQ==,RkxVVFRFUl9HSVRfVVJMPWh0dHBzOi8vZ2l0aHViLmNvbS9mbHV0dGVyL2ZsdXR0ZXIuZ2l0,RkxVVFRFUl9GUkFNRVdPUktfUkVWSVNJT049MDBiMGM5MWYwNg==,RkxVVFRFUl9FTkdJTkVfUkVWSVNJT049NDJkM2Q3NWE1Ng==,RkxVVFRFUl9EQVJUX1ZFUlNJT049My4xMS41 -Pdart-obfuscation=false -Ptrack-widget-creation=true -Ptree-shake-icons=false -Pfilesystem-scheme=org-dartlang-root assembleDebug 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>if "0" == "0" goto mainEnd 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>if "Windows_NT" == "Windows_NT" endlocal
+Running Gradle task 'assembleDebug'...                             26.9s
+√ Built build\app\outputs\flutter-apk\app-debug.apk
+Installing build\app\outputs\flutter-apk\app-debug.apk...           3.2s
+D/FlutterJNI( 4825): Beginning load of flutter...
+D/FlutterJNI( 4825): flutter (null) was loaded normally!
+I/flutter ( 4825): [IMPORTANT:flutter/shell/platform/android/android_context_gl_impeller.cc(104)] Using the Impeller rendering backend (OpenGLES).
+D/FlutterRenderer( 4825): Width is zero. 0,0
+Syncing files to device sdk gphone64 x86 64...                     209ms
+
+Flutter run key commands.
+r Hot reload. 
+R Hot restart.
+h List all available interactive commands.
+d Detach (terminate "flutter run" but leave application running).
+c Clear the screen
+q Quit (terminate the application on the device).
+
+A Dart VM Service on sdk gphone64 x86 64 is available at: http://127.0.0.1:61139/ws9h0S1J6CM=/
+The Flutter DevTools debugger and profiler on sdk gphone64 x86 64 is available at: http://127.0.0.1:61139/ws9h0S1J6CM=/devtools/?uri=ws://127.0.0.1:61139/ws9h0S1J6CM=/ws
+I/Choreographer( 4825): Skipped 218 frames!  The application may be doing too much work on its main thread.
+I/WindowExtensionsImpl( 4825): Initializing Window Extensions, vendor API level=6, activity embedding enabled=true
+I/storemanagement( 4825): Compiler allocated 5174KB to compile void android.view.ViewRootImpl.performTraversals()
+D/FlutterRenderer( 4825): Width is zero. 0,0
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+I/storemanagement( 4825): Compiler allocated 5417KB to compile void android.view.ViewRootImpl.performTraversals()
+W/HWUI    ( 4825): Failed to choose config with EGL_SWAP_BEHAVIOR_PRESERVED, retrying without...
+W/HWUI    ( 4825): Failed to initialize 101010-2 format, error = EGL_SUCCESS
+I/Gralloc4( 4825): mapper 4.x is not supported
+D/ProfileInstaller( 4825): Installing profile for com.local.storemanagement.storemanagement
+I/Choreographer( 4825): Skipped 41 frames!  The application may be doing too much work on its main thread.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/EGL_emulation( 4825): app_time_stats: avg=13520.23ms min=30.61ms max=40346.25ms count=3
+D/EGL_emulation( 4825): app_time_stats: avg=8233.79ms min=45.57ms max=24580.20ms count=3
+D/EGL_emulation( 4825): app_time_stats: avg=1409.71ms min=50.05ms max=2769.37ms count=2
+D/EGL_emulation( 4825): app_time_stats: avg=355.16ms min=2.94ms max=3024.02ms count=9
+D/EGL_emulation( 4825): app_time_stats: avg=2048.12ms min=6.92ms max=20101.01ms count=10
+D/EGL_emulation( 4825): app_time_stats: avg=18.16ms min=3.57ms max=81.14ms count=52
+D/EGL_emulation( 4825): app_time_stats: avg=14.67ms min=3.36ms max=33.87ms count=56
+D/EGL_emulation( 4825): app_time_stats: avg=169.58ms min=7.11ms max=3692.06ms count=24
+D/EGL_emulation( 4825): app_time_stats: avg=132.46ms min=2.50ms max=4431.81ms count=35
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:45990792: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+D/InputMethodManager( 4825): showSoftInput() view=io.flutter.embedding.android.FlutterView{f2f7425 VFE...... .F....ID 0,0-1080,2400 #1 aid=1073741824} flags=0 reason=SHOW_SOFT_INPUT
+D/EGL_emulation( 4825): app_time_stats: avg=142.58ms min=13.32ms max=4242.60ms count=34
+I/AssistStructure( 4825): Flattened final assist data: 564 bytes, containing 1 windows, 3 views
+D/InputConnectionAdaptor( 4825): The input method toggled cursor monitoring on
+D/InsetsController( 4825): show(ime(), fromIme=true)
+W/InteractionJankMonitor( 4825): Initializing without READ_DEVICE_CONFIG permission. enabled=true, interval=1, missedFrameThreshold=3, frameTimeThreshold=64, package=com.local.storemanagement.storemanagement
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:45990792: onShown
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/EGL_emulation( 4825): app_time_stats: avg=107.52ms min=12.51ms max=512.49ms count=13
+D/EGL_emulation( 4825): app_time_stats: avg=496.78ms min=467.75ms max=520.85ms count=3
+D/EGL_emulation( 4825): app_time_stats: avg=499.54ms min=498.50ms max=500.27ms count=3
+D/EGL_emulation( 4825): app_time_stats: avg=500.26ms min=498.08ms max=502.44ms count=2
+D/EGL_emulation( 4825): app_time_stats: avg=499.32ms min=496.87ms max=501.76ms count=3
+D/EGL_emulation( 4825): app_time_stats: avg=282.42ms min=24.46ms max=531.34ms count=4
+D/EGL_emulation( 4825): app_time_stats: avg=375.86ms min=139.80ms max=508.35ms count=3
+D/EGL_emulation( 4825): app_time_stats: avg=391.55ms min=208.24ms max=493.50ms count=3
+E/FrameTracker( 4825): force finish cuj, time out: J<IME_INSETS_SHOW_ANIMATION::0@1@com.local.storemanagement.storemanagement>
+D/EGL_emulation( 4825): app_time_stats: avg=500.16ms min=496.81ms max=502.36ms count=3
+D/EGL_emulation( 4825): app_time_stats: avg=485.86ms min=460.34ms max=499.20ms count=3
+D/EGL_emulation( 4825): app_time_stats: avg=491.92ms min=473.45ms max=501.42ms count=3
+D/EGL_emulation( 4825): app_time_stats: avg=499.37ms min=496.71ms max=501.49ms count=3
+D/EGL_emulation( 4825): app_time_stats: avg=275.99ms min=20.91ms max=498.80ms count=4
+D/EGL_emulation( 4825): app_time_stats: avg=392.49ms min=172.89ms max=510.00ms count=3
+D/EGL_emulation( 4825): app_time_stats: avg=286.85ms min=20.50ms max=488.33ms count=4
+D/EGL_emulation( 4825): app_time_stats: avg=433.34ms min=301.46ms max=501.89ms count=3
+W/WindowOnBackDispatcher( 4825): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher( 4825): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:5116a9e8: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT fromUser false
+D/InsetsController( 4825): hide(ime(), fromIme=true)
+D/InputConnectionAdaptor( 4825): The input method toggled cursor monitoring off
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/EGL_emulation( 4825): app_time_stats: avg=6785.60ms min=2.69ms max=107694.70ms count=19
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:fcaeca68: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT_ON_ANIMATION_STATE_CHANGED fromUser false
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:5116a9e8: onHidden
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/EGL_emulation( 4825): app_time_stats: avg=165.76ms min=10.26ms max=2894.16ms count=22
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:c4593f20: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+D/InputMethodManager( 4825): showSoftInput() view=io.flutter.embedding.android.FlutterView{f2f7425 VFE...... .F...... 0,0-1080,2400 #1 aid=1073741824} flags=0 reason=SHOW_SOFT_INPUT
+D/InputConnectionAdaptor( 4825): The input method toggled cursor monitoring on
+D/InsetsController( 4825): show(ime(), fromIme=true)
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/EGL_emulation( 4825): app_time_stats: avg=195.12ms min=9.36ms max=3381.34ms count=19
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:c4593f20: onShown
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/EGL_emulation( 4825): app_time_stats: avg=59.81ms min=7.25ms max=391.47ms count=18
+D/EGL_emulation( 4825): app_time_stats: avg=497.53ms min=488.71ms max=509.29ms count=3
+D/EGL_emulation( 4825): app_time_stats: avg=498.88ms min=494.57ms max=501.94ms count=3
+D/InputConnectionAdaptor( 4825): The input method toggled cursor monitoring off
+D/InsetsController( 4825): hide(ime(), fromIme=true)
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/EGL_emulation( 4825): app_time_stats: avg=195.16ms min=1.37ms max=3787.01ms count=20
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:9022b270: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT_ON_ANIMATION_STATE_CHANGED fromUser false
+I/ImeTracker( 4825): com.google.android.inputmethod.latin:1681c9a8: onHidden
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/EGL_emulation( 4825): app_time_stats: avg=125.94ms min=29.82ms max=512.39ms count=12
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:6d3264f6: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT fromUser false
+D/EGL_emulation( 4825): app_time_stats: avg=31.33ms min=13.95ms max=439.08ms count=32
+E/FrameTracker( 4825): force finish cuj, time out: J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+D/EGL_emulation( 4825): app_time_stats: avg=2074.99ms min=19.11ms max=4130.87ms count=2
+W/WindowOnBackDispatcher( 4825): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher( 4825): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+E/FrameTracker( 4825): force finish cuj, time out: J<IME_INSETS_SHOW_ANIMATION::0@1@com.local.storemanagement.storemanagement>
+D/EGL_emulation( 4825): app_time_stats: avg=149.05ms min=2.21ms max=2460.61ms count=18
+E/FrameTracker( 4825): force finish cuj, time out: J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:PREDICTION_ERROR, 71720, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 71763, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 71792, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 71821, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 71843, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 71872, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 71894, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 71923, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 71945, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 71974, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 71996, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 72025, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 72054, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 72083, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 72105, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 72134, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 72149, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 72171, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+V/PerfettoTrigger( 4825): Triggering /system/bin/trigger_perfetto com.android.telemetry.interaction-jank-monitor-81
+D/EGL_emulation( 4825): app_time_stats: avg=125.75ms min=2.38ms max=2719.17ms count=24
+W/WindowOnBackDispatcher( 4825): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher( 4825): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+D/EGL_emulation( 4825): app_time_stats: avg=97.28ms min=3.23ms max=2082.47ms count=25
+D/EGL_emulation( 4825): app_time_stats: avg=96.99ms min=6.27ms max=1061.06ms count=14
+D/EGL_emulation( 4825): app_time_stats: avg=94.65ms min=8.83ms max=869.19ms count=12
+D/EGL_emulation( 4825): app_time_stats: avg=1957.16ms min=135.63ms max=3778.69ms count=2
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:628e017d: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+D/InputMethodManager( 4825): showSoftInput() view=io.flutter.embedding.android.FlutterView{f2f7425 VFE...... .F...... 0,0-1080,2400 #1 aid=1073741824} flags=0 reason=SHOW_SOFT_INPUT
+D/EGL_emulation( 4825): app_time_stats: avg=1899.14ms min=96.13ms max=3702.15ms count=2
+D/InputConnectionAdaptor( 4825): The input method toggled cursor monitoring on
+D/InsetsController( 4825): show(ime(), fromIme=true)
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/EGL_emulation( 4825): app_time_stats: avg=1256.82ms min=1.50ms max=25009.08ms count=20
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:628e017d: onShown
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/EGL_emulation( 4825): app_time_stats: avg=77.72ms min=6.48ms max=517.60ms count=19
+D/EGL_emulation( 4825): app_time_stats: avg=494.29ms min=479.47ms max=502.18ms count=3
+D/EGL_emulation( 4825): app_time_stats: avg=304.63ms min=51.09ms max=526.17ms count=5
+D/EGL_emulation( 4825): app_time_stats: avg=167.68ms min=31.96ms max=397.84ms count=6
+D/EGL_emulation( 4825): app_time_stats: avg=489.70ms min=466.43ms max=502.55ms count=3
+D/EGL_emulation( 4825): app_time_stats: avg=40.90ms min=10.08ms max=517.70ms count=37
+D/EGL_emulation( 4825): app_time_stats: avg=507.11ms min=499.64ms max=514.59ms count=2
+D/EGL_emulation( 4825): app_time_stats: avg=23.85ms min=12.58ms max=293.08ms count=42
+E/FrameTracker( 4825): force finish cuj, time out: J<IME_INSETS_SHOW_ANIMATION::0@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:PREDICTION_ERROR, 73918, 0, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:PREDICTION_ERROR, 73954, 0, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed App frame:UNKNOWN: 88, 73983, 0, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 88, 73983, 0, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 74020, 0, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 74049, 0, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:PREDICTION_ERROR, 74072, 0, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:PREDICTION_ERROR, 74094, 0, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:PREDICTION_ERROR, 74109, 0, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 74131, 0, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 74146, 0, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 74161, 0, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 74183, 0, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 74205, 0, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 74213, 0, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 74228, 0, CUJ=J<IME_INSETS_SHOW_ANIMATION::0@1@com.local.storemanagement.storemanagement>
+V/PerfettoTrigger( 4825): Triggering /system/bin/trigger_perfetto com.android.telemetry.interaction-jank-monitor-80
+W/storemanagement( 4825): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/talkback/talkback.apk' with 1 weak references
+W/storemanagement( 4825): ApkAssets: Deleting an ApkAssets object '/vendor/overlay/EmulatorTalkBackOverlay/EmulatorTalkBackOverlay.apk' with 1 weak references
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:301cddf9: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT fromUser false
+D/InputConnectionAdaptor( 4825): The input method toggled cursor monitoring off
+D/InsetsController( 4825): hide(ime(), fromIme=true)
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/EGL_emulation( 4825): app_time_stats: avg=602.73ms min=1.10ms max=10652.56ms count=18
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:9c9c374a: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT_ON_ANIMATION_STATE_CHANGED fromUser false
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:301cddf9: onHidden
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/EGL_emulation( 4825): app_time_stats: avg=57.40ms min=2.37ms max=1878.38ms count=47
+D/EGL_emulation( 4825): app_time_stats: avg=72.83ms min=11.05ms max=1149.93ms count=20
+D/EGL_emulation( 4825): app_time_stats: avg=120.19ms min=2.47ms max=2406.03ms count=21
+E/FrameTracker( 4825): force finish cuj, time out: J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+D/EGL_emulation( 4825): app_time_stats: avg=642.07ms min=13.18ms max=13712.99ms count=22
+D/EGL_emulation( 4825): app_time_stats: avg=130.29ms min=13.74ms max=2158.37ms count=19
+D/EGL_emulation( 4825): app_time_stats: avg=59.31ms min=11.38ms max=744.90ms count=17
+D/EGL_emulation( 4825): app_time_stats: avg=1909.28ms min=151.79ms max=3666.77ms count=2
+D/EGL_emulation( 4825): app_time_stats: avg=159.87ms min=5.34ms max=2429.73ms count=19
+D/EGL_emulation( 4825): app_time_stats: avg=192.98ms min=2.24ms max=3290.04ms count=19
+W/WindowOnBackDispatcher( 4825): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher( 4825): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+D/EGL_emulation( 4825): app_time_stats: avg=82.40ms min=2.48ms max=1790.77ms count=26
+D/EGL_emulation( 4825): app_time_stats: avg=112.22ms min=9.58ms max=2029.01ms count=21
+D/EGL_emulation( 4825): app_time_stats: avg=72.16ms min=2.88ms max=995.96ms count=17
+D/EGL_emulation( 4825): app_time_stats: avg=61.25ms min=2.85ms max=1195.99ms count=21
+D/EGL_emulation( 4825): app_time_stats: avg=247.21ms min=13.67ms max=4637.83ms count=20
+D/EGL_emulation( 4825): app_time_stats: avg=71.72ms min=2.56ms max=1907.84ms count=31
+D/EGL_emulation( 4825): app_time_stats: avg=241.18ms min=2.47ms max=7785.72ms count=33
+W/WindowOnBackDispatcher( 4825): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher( 4825): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+D/EGL_emulation( 4825): app_time_stats: avg=84.49ms min=9.97ms max=2405.71ms count=36
+D/EGL_emulation( 4825): app_time_stats: avg=457.99ms min=2.70ms max=7603.90ms count=17
+W/WindowOnBackDispatcher( 4825): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher( 4825): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+D/EGL_emulation( 4825): app_time_stats: avg=119.39ms min=2.73ms max=2778.08ms count=26
+D/EGL_emulation( 4825): app_time_stats: avg=92.13ms min=2.68ms max=2177.88ms count=26
+W/WindowOnBackDispatcher( 4825): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher( 4825): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:286b9228: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+D/InputMethodManager( 4825): showSoftInput() view=io.flutter.embedding.android.FlutterView{f2f7425 VFE...... .F...... 0,0-1080,2400 #1 aid=1073741824} flags=0 reason=SHOW_SOFT_INPUT
+D/EGL_emulation( 4825): app_time_stats: avg=259.64ms min=10.21ms max=8507.01ms count=35
+I/AssistStructure( 4825): Flattened final assist data: 492 bytes, containing 1 windows, 3 views
+D/InputConnectionAdaptor( 4825): The input method toggled cursor monitoring on
+D/InsetsController( 4825): show(ime(), fromIme=true)
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/EGL_emulation( 4825): app_time_stats: avg=4203.34ms min=1.38ms max=83837.25ms count=20
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:286b9228: onShown
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/EGL_emulation( 4825): app_time_stats: avg=53.73ms min=3.74ms max=500.20ms count=25
+D/EGL_emulation( 4825): app_time_stats: avg=499.80ms min=498.39ms max=501.29ms count=3
+D/EGL_emulation( 4825): app_time_stats: avg=495.57ms min=491.18ms max=499.95ms count=2
+D/EGL_emulation( 4825): app_time_stats: avg=501.30ms min=500.39ms max=502.22ms count=2
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:d2ebb17f: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+D/InputMethodManager( 4825): showSoftInput() view=io.flutter.embedding.android.FlutterView{f2f7425 VFE...... .F...... 0,0-1080,2400 #1 aid=1073741824} flags=0 reason=SHOW_SOFT_INPUT
+D/EGL_emulation( 4825): app_time_stats: avg=474.57ms min=428.17ms max=497.95ms count=3
+D/InsetsController( 4825): show(ime(), fromIme=true)
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:d2ebb17f: onCancelled at PHASE_CLIENT_APPLY_ANIMATION
+E/FrameTracker( 4825): force finish cuj, time out: J<IME_INSETS_SHOW_ANIMATION::0@1@com.local.storemanagement.storemanagement>
+D/InsetsController( 4825): hide(ime(), fromIme=true)
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/InputConnectionAdaptor( 4825): The input method toggled cursor monitoring off
+D/EGL_emulation( 4825): app_time_stats: avg=799.61ms min=4.31ms max=14908.64ms count=19
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/EGL_emulation( 4825): app_time_stats: avg=748.09ms min=5.66ms max=8757.80ms count=12
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:20ac77c0: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT_ON_ANIMATION_STATE_CHANGED fromUser false
+I/ImeTracker( 4825): com.google.android.inputmethod.latin:127a81b8: onHidden
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/EGL_emulation( 4825): app_time_stats: avg=110.64ms min=11.80ms max=970.08ms count=13
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:dbbe6169: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT fromUser false
+D/EGL_emulation( 4825): app_time_stats: avg=256.06ms min=4.23ms max=3650.13ms count=15
+D/EGL_emulation( 4825): app_time_stats: avg=51.81ms min=9.08ms max=1208.38ms count=34
+D/EGL_emulation( 4825): app_time_stats: avg=5.54ms min=3.33ms max=27.94ms count=61
+E/FrameTracker( 4825): force finish cuj, time out: J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+D/EGL_emulation( 4825): app_time_stats: avg=2535.30ms min=3.67ms max=7595.63ms count=3
+D/EGL_emulation( 4825): app_time_stats: avg=52.18ms min=3.29ms max=1553.72ms count=35
+D/EGL_emulation( 4825): app_time_stats: avg=118.58ms min=4.96ms max=2876.66ms count=27
+D/EGL_emulation( 4825): app_time_stats: avg=46.36ms min=12.99ms max=1025.66ms count=34
+D/EGL_emulation( 4825): app_time_stats: avg=104.61ms min=2.73ms max=2834.14ms count=29
+W/WindowOnBackDispatcher( 4825): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher( 4825): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+D/EGL_emulation( 4825): app_time_stats: avg=118.00ms min=2.50ms max=2421.13ms count=23
+D/EGL_emulation( 4825): app_time_stats: avg=64.56ms min=13.18ms max=1023.32ms count=21
+D/EGL_emulation( 4825): app_time_stats: avg=757.04ms min=12.57ms max=14077.33ms count=19
+D/EGL_emulation( 4825): app_time_stats: avg=45.60ms min=4.18ms max=768.60ms count=26
+D/EGL_emulation( 4825): app_time_stats: avg=257.13ms min=14.08ms max=8435.52ms count=35
+D/EGL_emulation( 4825): app_time_stats: avg=554.79ms min=21.29ms max=1088.29ms count=2
+D/EGL_emulation( 4825): app_time_stats: avg=262.66ms min=2.72ms max=6903.12ms count=27
+D/EGL_emulation( 4825): app_time_stats: avg=49.96ms min=13.60ms max=1320.35ms count=39
+D/EGL_emulation( 4825): app_time_stats: avg=213.76ms min=13.70ms max=7706.32ms count=39
+D/EGL_emulation( 4825): app_time_stats: avg=100.69ms min=12.36ms max=651.61ms count=14
+D/EGL_emulation( 4825): app_time_stats: avg=216.04ms min=15.32ms max=1745.79ms count=10
+D/EGL_emulation( 4825): app_time_stats: avg=411.57ms min=13.80ms max=4503.96ms count=12
+D/EGL_emulation( 4825): app_time_stats: avg=42.05ms min=12.25ms max=902.12ms count=36
+D/EGL_emulation( 4825): app_time_stats: avg=79.35ms min=10.14ms max=1838.29ms count=29
+D/EGL_emulation( 4825): app_time_stats: avg=231.39ms min=5.85ms max=7729.45ms count=36
+D/EGL_emulation( 4825): app_time_stats: avg=71.04ms min=12.37ms max=1918.16ms count=35
+W/WindowOnBackDispatcher( 4825): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher( 4825): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+D/EGL_emulation( 4825): app_time_stats: avg=1083.95ms min=2.45ms max=20296.02ms count=19
+D/EGL_emulation( 4825): app_time_stats: avg=66.09ms min=3.07ms max=1351.36ms count=24
+D/EGL_emulation( 4825): app_time_stats: avg=39.10ms min=14.36ms max=844.61ms count=37
+D/EGL_emulation( 4825): app_time_stats: avg=734.93ms min=11.91ms max=17236.15ms count=24
+D/EGL_emulation( 4825): app_time_stats: avg=18.09ms min=9.25ms max=49.53ms count=55
+D/EGL_emulation( 4825): app_time_stats: avg=75.63ms min=14.09ms max=901.77ms count=15
+D/EGL_emulation( 4825): app_time_stats: avg=15.26ms min=2.79ms max=254.64ms count=46
+D/EGL_emulation( 4825): app_time_stats: avg=31485.91ms min=5.03ms max=62966.79ms count=2
+D/EGL_emulation( 4825): app_time_stats: avg=13.55ms min=2.85ms max=139.27ms count=52
+D/EGL_emulation( 4825): app_time_stats: avg=14.30ms min=2.59ms max=168.08ms count=48
+W/storemanagement( 4825): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/talkback/talkback.apk' with 1 weak references
+W/storemanagement( 4825): ApkAssets: Deleting an ApkAssets object '/vendor/overlay/EmulatorTalkBackOverlay/EmulatorTalkBackOverlay.apk' with 1 weak references
+D/EGL_emulation( 4825): app_time_stats: avg=533.16ms min=12.08ms max=19641.90ms count=38
+W/WindowOnBackDispatcher( 4825): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher( 4825): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+D/EGL_emulation( 4825): app_time_stats: avg=368.10ms min=2.73ms max=6322.58ms count=18
+D/EGL_emulation( 4825): app_time_stats: avg=145.47ms min=10.24ms max=2726.75ms count=21
+D/EGL_emulation( 4825): app_time_stats: avg=246.14ms min=11.91ms max=4615.17ms count=20
+D/EGL_emulation( 4825): app_time_stats: avg=2204.69ms min=220.39ms max=4188.99ms count=2
+D/EGL_emulation( 4825): app_time_stats: avg=392.48ms min=2.71ms max=12957.64ms count=34
+W/WindowOnBackDispatcher( 4825): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher( 4825): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+D/EGL_emulation( 4825): app_time_stats: avg=2276.80ms min=12.24ms max=81371.05ms count=36
+D/EGL_emulation( 4825): app_time_stats: avg=113.61ms min=3.72ms max=1265.40ms count=14
+D/EGL_emulation( 4825): app_time_stats: avg=16.28ms min=3.38ms max=200.51ms count=45
+D/EGL_emulation( 4825): app_time_stats: avg=364.84ms min=2.94ms max=9738.90ms count=27
+D/EGL_emulation( 4825): app_time_stats: avg=90.14ms min=4.46ms max=1339.16ms count=18
+D/EGL_emulation( 4825): app_time_stats: avg=19.79ms min=11.41ms max=181.11ms count=50
+D/EGL_emulation( 4825): app_time_stats: avg=6732.57ms min=6732.57ms max=6732.57ms count=1
+D/EGL_emulation( 4825): app_time_stats: avg=17.32ms min=7.32ms max=32.67ms count=57
+D/EGL_emulation( 4825): app_time_stats: avg=2012.24ms min=14.54ms max=13983.48ms count=7
+D/EGL_emulation( 4825): app_time_stats: avg=143.42ms min=3.02ms max=6005.63ms count=47
+D/EGL_emulation( 4825): app_time_stats: avg=460.26ms min=2.63ms max=15364.68ms count=34
+D/EGL_emulation( 4825): app_time_stats: avg=152.82ms min=9.51ms max=4296.35ms count=32
+W/WindowOnBackDispatcher( 4825): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher( 4825): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:d52b2c9b: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+D/InputMethodManager( 4825): showSoftInput() view=io.flutter.embedding.android.FlutterView{f2f7425 VFE...... .F...... 0,0-1080,2400 #1 aid=1073741824} flags=0 reason=SHOW_SOFT_INPUT
+I/AssistStructure( 4825): Flattened final assist data: 540 bytes, containing 1 windows, 3 views
+D/EGL_emulation( 4825): app_time_stats: avg=109.74ms min=2.59ms max=3783.02ms count=36
+D/InputConnectionAdaptor( 4825): The input method toggled cursor monitoring on
+D/InsetsController( 4825): show(ime(), fromIme=true)
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/EGL_emulation( 4825): app_time_stats: avg=27430.55ms min=1.54ms max=411152.56ms count=15
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:d52b2c9b: onShown
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/EGL_emulation( 4825): app_time_stats: avg=60.99ms min=8.70ms max=501.26ms count=23
+D/EGL_emulation( 4825): app_time_stats: avg=500.18ms min=477.91ms max=522.45ms count=2
+D/EGL_emulation( 4825): app_time_stats: avg=499.96ms min=499.70ms max=500.23ms count=2
+D/EGL_emulation( 4825): app_time_stats: avg=112.23ms min=12.74ms max=518.70ms count=9
+D/EGL_emulation( 4825): app_time_stats: avg=32.39ms min=11.56ms max=502.52ms count=31
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:6abf8776: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT fromUser false
+D/InsetsController( 4825): hide(ime(), fromIme=true)
+D/InputConnectionAdaptor( 4825): The input method toggled cursor monitoring off
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/EGL_emulation( 4825): app_time_stats: avg=298.67ms min=1.35ms max=5874.92ms count=20
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/EGL_emulation( 4825): app_time_stats: avg=58.87ms min=14.69ms max=498.64ms count=17
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:aa903fa4: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT_ON_ANIMATION_STATE_CHANGED fromUser false
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:6abf8776: onHidden
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+E/FrameTracker( 4825): force finish cuj, time out: J<IME_INSETS_SHOW_ANIMATION::0@1@com.local.storemanagement.storemanagement>
+W/WindowOnBackDispatcher( 4825): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher( 4825): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+D/EGL_emulation( 4825): app_time_stats: avg=1760.94ms min=24.57ms max=8657.76ms count=5
+E/FrameTracker( 4825): force finish cuj, time out: J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 102985, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 103014, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 103029, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 103058, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:PREDICTION_ERROR, 103095, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 103117, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 103139, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 103154, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 103176, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 103191, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 103213, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 103235, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 103264, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 103286, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 103315, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 103330, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+V/PerfettoTrigger( 4825): Triggering /system/bin/trigger_perfetto com.android.telemetry.interaction-jank-monitor-81
+D/EGL_emulation( 4825): app_time_stats: avg=51.64ms min=3.08ms max=1603.99ms count=34
+D/EGL_emulation( 4825): app_time_stats: avg=559.18ms min=11.06ms max=9765.22ms count=18
+D/EGL_emulation( 4825): app_time_stats: avg=202.16ms min=14.10ms max=6879.50ms count=37
+D/EGL_emulation( 4825): app_time_stats: avg=652.53ms min=12.18ms max=22254.75ms count=35
+W/WindowOnBackDispatcher( 4825): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher( 4825): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:e0f5aa0b: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+D/InputMethodManager( 4825): showSoftInput() view=io.flutter.embedding.android.FlutterView{f2f7425 VFE...... .F...... 0,0-1080,2400 #1 aid=1073741824} flags=0 reason=SHOW_SOFT_INPUT
+I/AssistStructure( 4825): Flattened final assist data: 464 bytes, containing 1 windows, 3 views
+D/EGL_emulation( 4825): app_time_stats: avg=220.42ms min=2.53ms max=7620.56ms count=36
+D/InputConnectionAdaptor( 4825): The input method toggled cursor monitoring on
+D/InsetsController( 4825): show(ime(), fromIme=true)
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/EGL_emulation( 4825): app_time_stats: avg=3144.19ms min=1.47ms max=59603.60ms count=19
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:e0f5aa0b: onShown
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/EGL_emulation( 4825): app_time_stats: avg=54.71ms min=5.56ms max=498.87ms count=26
+D/EGL_emulation( 4825): app_time_stats: avg=501.51ms min=500.70ms max=502.31ms count=2
+D/EGL_emulation( 4825): app_time_stats: avg=501.39ms min=498.18ms max=504.60ms count=2
+D/EGL_emulation( 4825): app_time_stats: avg=499.27ms min=494.68ms max=503.48ms count=3
+D/EGL_emulation( 4825): app_time_stats: avg=501.07ms min=498.19ms max=503.74ms count=3
+D/EGL_emulation( 4825): app_time_stats: avg=498.18ms min=493.51ms max=502.44ms count=3
+D/EGL_emulation( 4825): app_time_stats: avg=500.56ms min=499.71ms max=501.40ms count=2
+D/EGL_emulation( 4825): app_time_stats: avg=494.64ms min=488.44ms max=501.11ms count=3
+E/FrameTracker( 4825): force finish cuj, time out: J<IME_INSETS_SHOW_ANIMATION::0@1@com.local.storemanagement.storemanagement>
+D/EGL_emulation( 4825): app_time_stats: avg=250.72ms min=14.95ms max=503.74ms count=4
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:dc2aa4aa: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT fromUser false
+D/InsetsController( 4825): hide(ime(), fromIme=true)
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/EGL_emulation( 4825): app_time_stats: avg=593.82ms min=1.27ms max=11103.72ms count=19
+D/InputConnectionAdaptor( 4825): The input method toggled cursor monitoring off
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:f908615a: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT_ON_ANIMATION_STATE_CHANGED fromUser false
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:dc2aa4aa: onHidden
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/EGL_emulation( 4825): app_time_stats: avg=232.65ms min=15.36ms max=3311.68ms count=16
+W/WindowOnBackDispatcher( 4825): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher( 4825): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+E/FrameTracker( 4825): force finish cuj, time out: J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 105792, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 105843, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 105865, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 105895, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 105917, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 105939, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 105954, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 105976, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 105991, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 106013, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 106035, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 106057, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 106079, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 106115, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+V/PerfettoTrigger( 4825): Not triggering com.android.telemetry.interaction-jank-monitor-81 - not enough time since last trigger
+D/EGL_emulation( 4825): app_time_stats: avg=801.66ms min=2.86ms max=29472.93ms count=37
+D/EGL_emulation( 4825): app_time_stats: avg=188.38ms min=11.92ms max=3095.48ms count=18
+W/WindowOnBackDispatcher( 4825): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher( 4825): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+D/EGL_emulation( 4825): app_time_stats: avg=78.27ms min=7.78ms max=1984.83ms count=33
+D/EGL_emulation( 4825): app_time_stats: avg=68.46ms min=13.08ms max=936.12ms count=18
+D/EGL_emulation( 4825): app_time_stats: avg=329.26ms min=13.42ms max=11900.26ms count=38
+W/storemanagement( 4825): ApkAssets: Deleting an ApkAssets object '<empty> and /product/app/talkback/talkback.apk' with 1 weak references
+W/storemanagement( 4825): ApkAssets: Deleting an ApkAssets object '/vendor/overlay/EmulatorTalkBackOverlay/EmulatorTalkBackOverlay.apk' with 1 weak references
+W/WindowOnBackDispatcher( 4825): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher( 4825): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+D/EGL_emulation( 4825): app_time_stats: avg=2213.04ms min=2.60ms max=79387.25ms count=36
+D/EGL_emulation( 4825): app_time_stats: avg=110.97ms min=3.35ms max=1627.61ms count=16
+W/WindowOnBackDispatcher( 4825): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher( 4825): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+D/EGL_emulation( 4825): app_time_stats: avg=15587.85ms min=7.78ms max=358145.59ms count=23
+D/EGL_emulation( 4825): app_time_stats: avg=22.41ms min=2.90ms max=267.61ms count=47
+D/EGL_emulation( 4825): app_time_stats: avg=42.27ms min=14.49ms max=737.95ms count=28
+D/EGL_emulation( 4825): app_time_stats: avg=95.11ms min=2.86ms max=1539.91ms count=19
+D/EGL_emulation( 4825): app_time_stats: avg=193.09ms min=10.21ms max=6165.06ms count=35
+W/WindowOnBackDispatcher( 4825): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher( 4825): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:8fc50ab2: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+D/InputMethodManager( 4825): showSoftInput() view=io.flutter.embedding.android.FlutterView{f2f7425 VFE...... .F...... 0,0-1080,2400 #1 aid=1073741824} flags=0 reason=SHOW_SOFT_INPUT
+D/EGL_emulation( 4825): app_time_stats: avg=173.15ms min=9.50ms max=5616.92ms count=36
+I/AssistStructure( 4825): Flattened final assist data: 464 bytes, containing 1 windows, 3 views
+D/InputConnectionAdaptor( 4825): The input method toggled cursor monitoring on
+D/InsetsController( 4825): show(ime(), fromIme=true)
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/EGL_emulation( 4825): app_time_stats: avg=26909.38ms min=1.19ms max=511154.59ms count=19
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:8fc50ab2: onShown
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/EGL_emulation( 4825): app_time_stats: avg=63.35ms min=8.00ms max=515.37ms count=23
+D/EGL_emulation( 4825): app_time_stats: avg=505.28ms min=470.89ms max=529.25ms count=3
+D/EGL_emulation( 4825): app_time_stats: avg=495.08ms min=469.17ms max=513.60ms count=3
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:7fd50c5f: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+D/InputMethodManager( 4825): showSoftInput() view=io.flutter.embedding.android.FlutterView{f2f7425 VFE...... .F...... 0,0-1080,2400 #1 aid=1073741824} flags=0 reason=SHOW_SOFT_INPUT
+D/InsetsController( 4825): show(ime(), fromIme=true)
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:7fd50c5f: onCancelled at PHASE_CLIENT_APPLY_ANIMATION
+D/EGL_emulation( 4825): app_time_stats: avg=494.46ms min=483.33ms max=500.54ms count=3
+D/EGL_emulation( 4825): app_time_stats: avg=501.04ms min=469.63ms max=532.46ms count=2
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:5fc9d0c5: onRequestShow at ORIGIN_CLIENT reason SHOW_SOFT_INPUT fromUser false
+D/InputMethodManager( 4825): showSoftInput() view=io.flutter.embedding.android.FlutterView{f2f7425 VFE...... .F...... 0,0-1080,2400 #1 aid=1073741824} flags=0 reason=SHOW_SOFT_INPUT
+D/InsetsController( 4825): show(ime(), fromIme=true)
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:5fc9d0c5: onCancelled at PHASE_CLIENT_APPLY_ANIMATION
+D/EGL_emulation( 4825): app_time_stats: avg=504.50ms min=496.76ms max=517.13ms count=3
+D/EGL_emulation( 4825): app_time_stats: avg=389.06ms min=172.21ms max=498.15ms count=3
+E/FrameTracker( 4825): force finish cuj, time out: J<IME_INSETS_SHOW_ANIMATION::0@1@com.local.storemanagement.storemanagement>
+D/EGL_emulation( 4825): app_time_stats: avg=343.62ms min=37.72ms max=501.46ms count=3
+D/EGL_emulation( 4825): app_time_stats: avg=422.13ms min=258.82ms max=518.96ms count=3
+D/EGL_emulation( 4825): app_time_stats: avg=500.42ms min=499.07ms max=501.77ms count=2
+D/EGL_emulation( 4825): app_time_stats: avg=349.81ms min=37.23ms max=542.17ms count=3
+D/EGL_emulation( 4825): app_time_stats: avg=500.62ms min=499.56ms max=501.69ms count=2
+D/EGL_emulation( 4825): app_time_stats: avg=499.96ms min=498.07ms max=501.86ms count=2
+D/EGL_emulation( 4825): app_time_stats: avg=508.22ms min=497.51ms max=518.92ms count=2
+D/EGL_emulation( 4825): app_time_stats: avg=494.32ms min=485.23ms max=501.26ms count=3
+D/EGL_emulation( 4825): app_time_stats: avg=501.23ms min=485.67ms max=516.79ms count=2
+D/EGL_emulation( 4825): app_time_stats: avg=433.58ms min=303.00ms max=500.59ms count=3
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:57c3f90: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT fromUser false
+D/InputConnectionAdaptor( 4825): The input method toggled cursor monitoring off
+D/InsetsController( 4825): hide(ime(), fromIme=true)
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/EGL_emulation( 4825): app_time_stats: avg=1153.77ms min=1.36ms max=20588.99ms count=18
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:d117aba6: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT_ON_ANIMATION_STATE_CHANGED fromUser false
+I/ImeTracker( 4825): com.local.storemanagement.storemanagement:57c3f90: onHidden
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/FlutterJNI( 4825): Sending viewport metrics to the engine.
+D/EGL_emulation( 4825): app_time_stats: avg=302.11ms min=12.44ms max=5509.81ms count=20
+W/WindowOnBackDispatcher( 4825): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher( 4825): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+E/FrameTracker( 4825): force finish cuj, time out: J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 112268, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 112290, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 112319, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 112334, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 112363, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 112385, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 112407, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 112429, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 112444, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 112466, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 112481, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 112503, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 112525, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 112547, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 112576, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 112605, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 112620, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+W/FrameTracker( 4825): Missed SF frame:UNKNOWN: 80, 112642, 0, CUJ=J<IME_INSETS_HIDE_ANIMATION::1@1@com.local.storemanagement.storemanagement>
+V/PerfettoTrigger( 4825): Triggering /system/bin/trigger_perfetto com.android.telemetry.interaction-jank-monitor-81
+D/EGL_emulation( 4825): app_time_stats: avg=2653.43ms min=14.94ms max=97570.57ms count=37
+Lost connection to device.
