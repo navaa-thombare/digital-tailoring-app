@@ -58,7 +58,7 @@ is enabled for both `dev` and `prod` builds.
 ```
 
 This installs `Digital Tailoring Dev` alongside a production installation.
-The initial launch animation is displayed for 15 seconds.
+The initial launch animation is displayed for 5 seconds.
 
 Build an installable dev APK without launching an emulator:
 
@@ -72,6 +72,29 @@ The dev APK is generated at:
 build\app\outputs\flutter-apk\app-dev-debug.apk
 ```
 
+## Automatic WhatsApp Messages
+
+Owner settings include:
+
+- **WhatsApp Templates** for the mandatory new-order and ready-for-pickup text.
+- **WhatsApp API Configuration** for Meta Graph API version, WhatsApp phone
+  number ID, permanent access token, and sender name.
+- **WhatsApp Message History** for customer, date, message type, status,
+  template, rendered message, provider ID, and errors.
+
+Creating an order queues the `Order` message. The first transition where every
+ordered unit is `Ready` queues the `Delivery` message. Each event is stored once
+per order, so later edits do not send duplicates. If automatic sending is
+disabled or incomplete, the record is stored as `Hold`; provider rejections are
+stored as `Failure`. Both can be retried from message history.
+
+The current mobile integration calls Meta WhatsApp Cloud API directly and keeps
+the access token in Android secure storage. For production, put this call behind
+a shop-owned backend so permanent Meta credentials are not distributed to
+mobile devices. Meta may reject free-text business messages outside its
+customer-service window; production business-initiated messages should use
+Meta-approved WhatsApp templates.
+
 ## Supabase Production Backend
 
 The initial schema and Row Level Security policies are in
@@ -79,6 +102,33 @@ The initial schema and Row Level Security policies are in
 migration to the Supabase project before connecting production screens to cloud
 data. It implements one owner shop, one active shop per worker, multi-role
 memberships, and shop-scoped tailoring records.
+
+The current tailoring UI uses an offline-first state snapshot so all existing
+fields remain compatible while the normalized schema is adopted incrementally:
+
+- SQLite `tailoring_state_cache` keeps data after restarts and when offline.
+- Supabase `tailoring_app_state` stores one revisioned JSON snapshot per shop.
+- Supabase Realtime broadcasts state changes to other owner devices.
+- Row Level Security limits the snapshot to active shop members.
+
+Apply both migrations in order:
+
+```text
+supabase/migrations/202605230001_initial_tailoring_schema.sql
+supabase/migrations/202606130001_realtime_tailoring_state.sql
+```
+
+In Supabase Authentication, enable Email/Password login. For private
+owner-only provisioning, disable Confirm email or provide a real
+`OWNER_AUTH_EMAIL` that can receive confirmation. The first production login
+uses the configured default password and then creates the Supabase owner
+account when the owner chooses a new password. Additional owner devices sign in
+with the same owner email and changed password, download the shop snapshot, and
+subscribe to Realtime updates.
+
+Worker credentials are intentionally not included in the shared snapshot.
+Production multi-device worker login requires separate Supabase Auth users and
+`shop_memberships`; the migration already contains that authorization model.
 
 ## Build Production APK For USB Install
 

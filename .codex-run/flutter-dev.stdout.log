@@ -1,0 +1,80 @@
+Launching lib/main.dart on sdk gphone64 x86 64 in debug mode...
+Running Gradle task 'assembleDevDebug'...                       
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>if "Windows_NT" == "Windows_NT" setlocal
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>set DEFAULT_JVM_OPTS= 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>set DIRNAME=D:\application-development\vercel-app-building\flutter-app-vscode\android\ 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>if "D:\application-development\vercel-app-building\flutter-app-vscode\android\" == "" set DIRNAME=. 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>set APP_BASE_NAME=gradlew 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>set APP_HOME=D:\application-development\vercel-app-building\flutter-app-vscode\android\ 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>if defined JAVA_HOME goto findJavaFromJavaHome 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>set JAVA_HOME=C:\Program Files\Eclipse Adoptium\jdk-21.0.11.10-hotspot\ 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>set JAVA_EXE=C:\Program Files\Eclipse Adoptium\jdk-21.0.11.10-hotspot\/bin/java.exe 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>if exist "C:\Program Files\Eclipse Adoptium\jdk-21.0.11.10-hotspot\/bin/java.exe" goto init 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>if not "Windows_NT" == "Windows_NT" goto win9xME_args 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>if "@eval[2+2]" == "4" goto 4NT_args 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>set CMD_LINE_ARGS= 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>set _SKIP=2 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>if "x-q" == "x" goto execute 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>set CMD_LINE_ARGS=-q -Ptarget-platform=android-x64 -Ptarget=D:\application-development\vercel-app-building\flutter-app-vscode\lib/main.dart -Pbase-application-name=android.app.Application -Pdart-defines=QVBQX0VOVj1kZXY=,U1VQQUJBU0VfVVJMPQ==,U1VQQUJBU0VfUFVCTElTSEFCTEVfS0VZPQ==,U0VTU0lPTl9UVExfREFZUz03,T1dORVJfTkFNRT1OYXZhYSBUYWlsb3Jz,U0hPUF9OQU1FPURpZ2l0YWwgVGFpbG9yaW5nIFN0dWRpbw==,T1dORVJfUEhPTkU9OTk5OTk5OTk5OQ==,U0hPUF9BRERSRVNTPVNob3AgTm8uIDEyLCBNYWluIFJvYWQsIE5lYXIgTGFuZG1hcms=,T1dORVJfREVGQVVMVF9QQVNTV09SRD1DaGFuZ2VNZUAxMjM0NQ==,RkxVVFRFUl9BUFBfRkxBVk9SPWRldg==,RkxVVFRFUl9WRVJTSU9OPTMuNDEuOQ==,RkxVVFRFUl9DSEFOTkVMPXN0YWJsZQ==,RkxVVFRFUl9HSVRfVVJMPWh0dHBzOi8vZ2l0aHViLmNvbS9mbHV0dGVyL2ZsdXR0ZXIuZ2l0,RkxVVFRFUl9GUkFNRVdPUktfUkVWSVNJT049MDBiMGM5MWYwNg==,RkxVVFRFUl9FTkdJTkVfUkVWSVNJT049NDJkM2Q3NWE1Ng==,RkxVVFRFUl9EQVJUX1ZFUlNJT049My4xMS41 -Pdart-obfuscation=false -Ptrack-widget-creation=true -Ptree-shake-icons=false -Pfilesystem-scheme=org-dartlang-root assembleDevDebug 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>goto execute 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>set CLASSPATH=D:\application-development\vercel-app-building\flutter-app-vscode\android\\gradle\wrapper\gradle-wrapper.jar 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>"C:\Program Files\Eclipse Adoptium\jdk-21.0.11.10-hotspot\/bin/java.exe"    "-Dorg.gradle.appname=gradlew" -classpath "D:\application-development\vercel-app-building\flutter-app-vscode\android\\gradle\wrapper\gradle-wrapper.jar" org.gradle.wrapper.GradleWrapperMain -q -Ptarget-platform=android-x64 -Ptarget=D:\application-development\vercel-app-building\flutter-app-vscode\lib/main.dart -Pbase-application-name=android.app.Application -Pdart-defines=QVBQX0VOVj1kZXY=,U1VQQUJBU0VfVVJMPQ==,U1VQQUJBU0VfUFVCTElTSEFCTEVfS0VZPQ==,U0VTU0lPTl9UVExfREFZUz03,T1dORVJfTkFNRT1OYXZhYSBUYWlsb3Jz,U0hPUF9OQU1FPURpZ2l0YWwgVGFpbG9yaW5nIFN0dWRpbw==,T1dORVJfUEhPTkU9OTk5OTk5OTk5OQ==,U0hPUF9BRERSRVNTPVNob3AgTm8uIDEyLCBNYWluIFJvYWQsIE5lYXIgTGFuZG1hcms=,T1dORVJfREVGQVVMVF9QQVNTV09SRD1DaGFuZ2VNZUAxMjM0NQ==,RkxVVFRFUl9BUFBfRkxBVk9SPWRldg==,RkxVVFRFUl9WRVJTSU9OPTMuNDEuOQ==,RkxVVFRFUl9DSEFOTkVMPXN0YWJsZQ==,RkxVVFRFUl9HSVRfVVJMPWh0dHBzOi8vZ2l0aHViLmNvbS9mbHV0dGVyL2ZsdXR0ZXIuZ2l0,RkxVVFRFUl9GUkFNRVdPUktfUkVWSVNJT049MDBiMGM5MWYwNg==,RkxVVFRFUl9FTkdJTkVfUkVWSVNJT049NDJkM2Q3NWE1Ng==,RkxVVFRFUl9EQVJUX1ZFUlNJT049My4xMS41 -Pdart-obfuscation=false -Ptrack-widget-creation=true -Ptree-shake-icons=false -Pfilesystem-scheme=org-dartlang-root assembleDevDebug 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>if "0" == "0" goto mainEnd 
+
+D:\application-development\vercel-app-building\flutter-app-vscode\android>if "Windows_NT" == "Windows_NT" endlocal
+Running Gradle task 'assembleDevDebug'...                          20.7s
+√ Built build\app\outputs\flutter-apk\app-dev-debug.apk
+Installing build\app\outputs\flutter-apk\app-dev-debug.apk...      2,063ms
+D/FlutterJNI(13912): Beginning load of flutter...
+D/FlutterJNI(13912): flutter (null) was loaded normally!
+I/flutter (13912): [IMPORTANT:flutter/shell/platform/android/android_context_gl_impeller.cc(104)] Using the Impeller rendering backend (OpenGLES).
+D/FlutterRenderer(13912): Width is zero. 0,0
+Syncing files to device sdk gphone64 x86 64...                     141ms
+
+Flutter run key commands.
+r Hot reload. 
+R Hot restart.
+h List all available interactive commands.
+d Detach (terminate "flutter run" but leave application running).
+c Clear the screen
+q Quit (terminate the application on the device).
+
+A Dart VM Service on sdk gphone64 x86 64 is available at: http://127.0.0.1:54767/9aEo8NsLSlc=/
+The Flutter DevTools debugger and profiler on sdk gphone64 x86 64 is available at: http://127.0.0.1:54767/9aEo8NsLSlc=/devtools/?uri=ws://127.0.0.1:54767/9aEo8NsLSlc=/ws
+I/Choreographer(13912): Skipped 90 frames!  The application may be doing too much work on its main thread.
+I/emanagement.dev(13912): Compiler allocated 5174KB to compile void android.view.ViewRootImpl.performTraversals()
+I/WindowExtensionsImpl(13912): Initializing Window Extensions, vendor API level=6, activity embedding enabled=true
+D/FlutterRenderer(13912): Width is zero. 0,0
+D/FlutterJNI(13912): Sending viewport metrics to the engine.
+W/HWUI    (13912): Failed to choose config with EGL_SWAP_BEHAVIOR_PRESERVED, retrying without...
+W/HWUI    (13912): Failed to initialize 101010-2 format, error = EGL_SUCCESS
+I/Gralloc4(13912): mapper 4.x is not supported
+I/Choreographer(13912): Skipped 49 frames!  The application may be doing too much work on its main thread.
+D/FlutterJNI(13912): Sending viewport metrics to the engine.
+I/HWUI    (13912): Davey! duration=873ms; Flags=1, FrameTimelineVsyncId=708790, IntendedVsync=38136569092868, Vsync=38137385759502, InputEventId=0, HandleInputStart=38137396196540, AnimationStart=38137396216540, PerformTraversalsStart=38137396273940, DrawStart=38137411284640, FrameDeadline=38136585759534, FrameInterval=38137391602540, FrameStartTime=16666666, SyncQueued=38137411793340, SyncStart=38137413308640, IssueDrawCommandsStart=38137414429040, SwapBuffers=38137429385040, FrameCompleted=38137444366140, DequeueBufferDuration=11151000, QueueBufferDuration=680300, GpuCompleted=38137444366140, SwapBuffersCompleted=38137443753440, DisplayPresentTime=135274296810113, CommandSubmissionCompleted=38137429385040, 
+D/FlutterJNI(13912): Sending viewport metrics to the engine.
+D/ProfileInstaller(13912): Installing profile for com.local.storemanagement.storemanagement.dev
+D/EGL_emulation(13912): app_time_stats: avg=17.33ms min=3.99ms max=160.00ms count=44
+D/EGL_emulation(13912): app_time_stats: avg=7.90ms min=2.74ms max=47.04ms count=59
+D/EGL_emulation(13912): app_time_stats: avg=26.64ms min=2.32ms max=562.66ms count=42
+Lost connection to device.

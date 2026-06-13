@@ -14,7 +14,7 @@ class AppConfig {
   );
 
   static const databaseName = 'storemanagement.db';
-  static const databaseVersion = 2;
+  static const databaseVersion = 4;
 
   static AppEnvironment get environment {
     return switch (_environmentValue.toLowerCase()) {
@@ -38,6 +38,10 @@ class AppConfig {
       );
   static String get ownerPhone => const String.fromEnvironment(
         'OWNER_PHONE',
+        defaultValue: '',
+      );
+  static String get ownerAuthEmail => const String.fromEnvironment(
+        'OWNER_AUTH_EMAIL',
         defaultValue: '',
       );
   static String get shopAddress => const String.fromEnvironment(

@@ -9,17 +9,351 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
 import 'core/config/app_config.dart';
+import 'core/config/production_seed_migration.dart';
+import 'core/contacts/phone_contact_lookup.dart';
+import 'core/messaging/whatsapp_templates.dart';
+import 'core/orders/order_validation.dart';
+import 'core/orders/unit_work_assignment.dart';
 import 'core/security/password_hasher.dart';
+import 'data/repositories/tailoring_state_repository.dart';
 
-const _brand = Color(0xFF7A3F19);
-const _brandDark = Color(0xFF2D160B);
-const _accent = Color(0xFFC68A43);
-const _surface = Color(0xFFFFF8F0);
-const _ink = Color(0xFF261B14);
+const _brand = Color(0xFF5B8DEF);
+const _brandDark = Color(0xFF214B9B);
+const _accent = Color(0xFF78A7FF);
+const _surface = Color(0xFFF4F8FF);
+const _ink = Color(0xFF10213F);
+const _glossHighlight = Color(0xFFA9C7FF);
+const _glossRose = Color(0xFFDCE9FF);
+const _glossBlue = Color(0xFFBFD7FF);
+const _launchDuration = Duration(seconds: 5);
+const _phoneContactLookup = PhoneContactLookup();
 const _languageStorageKey = 'app_language';
+const _contactsPermissionRequestedStorageKey = 'contacts_permission_requested';
 const _ownerPhoneStorageKey = 'configured_owner_phone';
 const _ownerPasswordHashStorageKey = 'configured_owner_password_hash';
 const _ownerSessionStorageKey = 'authenticated_owner_phone';
+
+Future<String?> _readSecureValue(
+  FlutterSecureStorage storage,
+  String key,
+) async {
+  try {
+    return await storage.read(key: key);
+  } on PlatformException {
+    try {
+      await storage.delete(key: key);
+    } on PlatformException {
+      // The unreadable value cannot be recovered; use the default instead.
+    }
+    return null;
+  }
+}
+
+ThemeData _buildGlossyTheme() {
+  final colorScheme = ColorScheme.fromSeed(
+    seedColor: _brand,
+    primary: _brand,
+    secondary: _accent,
+    surface: const Color(0xFFF9FBFF),
+  );
+  final base = ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.light,
+    colorScheme: colorScheme,
+  );
+  final rounded16 = RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(16),
+  );
+
+  return base.copyWith(
+    scaffoldBackgroundColor: Colors.transparent,
+    canvasColor: const Color(0xF2F5F9FF),
+    splashFactory: InkSparkle.splashFactory,
+    textTheme:
+        base.textTheme.apply(bodyColor: _ink, displayColor: _ink).copyWith(
+              headlineSmall: base.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.4,
+              ),
+              titleLarge: base.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+              titleMedium: base.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+    appBarTheme: AppBarTheme(
+      centerTitle: false,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      backgroundColor: const Color(0xE6F4F8FF),
+      foregroundColor: _ink,
+      surfaceTintColor: Colors.transparent,
+      shadowColor: _brand.withValues(alpha: 0.18),
+      titleTextStyle: base.textTheme.titleLarge?.copyWith(
+        color: _ink,
+        fontWeight: FontWeight.w900,
+        letterSpacing: -0.3,
+      ),
+      systemOverlayStyle: SystemUiOverlayStyle.dark.copyWith(
+        statusBarColor: Colors.transparent,
+        systemNavigationBarColor: const Color(0xF2F4F8FF),
+      ),
+    ),
+    cardTheme: CardThemeData(
+      elevation: 8,
+      shadowColor: _brandDark.withValues(alpha: 0.16),
+      surfaceTintColor: Colors.white,
+      color: const Color(0xE6FFFFFF),
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: BorderSide(color: Colors.white.withValues(alpha: 0.88)),
+      ),
+    ),
+    dialogTheme: DialogThemeData(
+      elevation: 24,
+      shadowColor: _brandDark.withValues(alpha: 0.28),
+      backgroundColor: const Color(0xF2F8FBFF),
+      surfaceTintColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: BorderSide(color: Colors.white.withValues(alpha: 0.92)),
+      ),
+      titleTextStyle: base.textTheme.titleLarge?.copyWith(
+        color: _ink,
+        fontWeight: FontWeight.w900,
+      ),
+    ),
+    bottomSheetTheme: const BottomSheetThemeData(
+      backgroundColor: Color(0xF2F8FBFF),
+      modalBackgroundColor: Color(0xF2F8FBFF),
+      surfaceTintColor: Colors.white,
+      elevation: 20,
+      showDragHandle: true,
+    ),
+    drawerTheme: DrawerThemeData(
+      backgroundColor: const Color(0xF2F4F8FF),
+      surfaceTintColor: Colors.white,
+      elevation: 18,
+      shadowColor: _brandDark.withValues(alpha: 0.24),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.horizontal(right: Radius.circular(28)),
+      ),
+    ),
+    navigationBarTheme: NavigationBarThemeData(
+      height: 72,
+      elevation: 16,
+      backgroundColor: const Color(0xEDF7FAFF),
+      surfaceTintColor: Colors.white,
+      shadowColor: _brandDark.withValues(alpha: 0.18),
+      indicatorColor: _glossHighlight.withValues(alpha: 0.76),
+      indicatorShape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: BorderSide(color: Colors.white.withValues(alpha: 0.9)),
+      ),
+      iconTheme: WidgetStateProperty.resolveWith((states) {
+        return IconThemeData(
+          color: states.contains(WidgetState.selected) ? _brand : _ink,
+          size: states.contains(WidgetState.selected) ? 26 : 23,
+        );
+      }),
+      labelTextStyle: WidgetStateProperty.resolveWith((states) {
+        return base.textTheme.labelMedium?.copyWith(
+          color: states.contains(WidgetState.selected) ? _brand : _ink,
+          fontWeight: states.contains(WidgetState.selected)
+              ? FontWeight.w900
+              : FontWeight.w700,
+        );
+      }),
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: const Color(0xD9FFFFFF),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+      labelStyle: const TextStyle(
+        color: Color(0xFF3E5C8F),
+        fontWeight: FontWeight.w700,
+      ),
+      hintStyle: TextStyle(color: _ink.withValues(alpha: 0.5)),
+      prefixIconColor: _brand,
+      suffixIconColor: _brand,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.92)),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: Color(0xFFC8D9F5)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: _accent, width: 2),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: colorScheme.error),
+      ),
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        backgroundColor: _brand,
+        foregroundColor: Colors.white,
+        disabledBackgroundColor: _brand.withValues(alpha: 0.28),
+        elevation: 8,
+        shadowColor: _brand.withValues(alpha: 0.42),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        shape: rounded16,
+        textStyle: const TextStyle(fontWeight: FontWeight.w900),
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: _brand,
+        backgroundColor: Colors.white.withValues(alpha: 0.58),
+        side: const BorderSide(color: Color(0xFF9BBBF2)),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        shape: rounded16,
+        textStyle: const TextStyle(fontWeight: FontWeight.w800),
+      ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: _brand,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        textStyle: const TextStyle(fontWeight: FontWeight.w800),
+      ),
+    ),
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      elevation: 12,
+      highlightElevation: 16,
+      backgroundColor: _brand,
+      foregroundColor: Colors.white,
+      splashColor: _glossHighlight.withValues(alpha: 0.45),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: Colors.white.withValues(alpha: 0.86)),
+      ),
+    ),
+    chipTheme: base.chipTheme.copyWith(
+      backgroundColor: Colors.white.withValues(alpha: 0.7),
+      selectedColor: _glossHighlight.withValues(alpha: 0.72),
+      side: const BorderSide(color: Color(0xFFC8D9F5)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      labelStyle: const TextStyle(color: _ink, fontWeight: FontWeight.w700),
+    ),
+    listTileTheme: ListTileThemeData(
+      iconColor: _brand,
+      textColor: _ink,
+      selectedColor: _brand,
+      selectedTileColor: _glossHighlight.withValues(alpha: 0.34),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 3),
+    ),
+    snackBarTheme: SnackBarThemeData(
+      behavior: SnackBarBehavior.floating,
+      elevation: 14,
+      backgroundColor: const Color(0xF2214B9B),
+      contentTextStyle: const TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.w700,
+      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    ),
+    dividerTheme: DividerThemeData(
+      color: _brand.withValues(alpha: 0.16),
+      thickness: 1,
+      space: 20,
+    ),
+    progressIndicatorTheme: const ProgressIndicatorThemeData(
+      color: _accent,
+      linearTrackColor: Color(0x6678A7FF),
+      circularTrackColor: Color(0x4478A7FF),
+    ),
+  );
+}
+
+class _GlossyAppBackground extends StatelessWidget {
+  const _GlossyAppBackground({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: _surface,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFFF8FBFF),
+                  Color(0xFFEAF2FF),
+                  Color(0xFFDDEAFF),
+                  Color(0xFFF5F9FF),
+                ],
+                stops: [0, 0.38, 0.7, 1],
+              ),
+            ),
+          ),
+          const Positioned(
+            top: -120,
+            right: -90,
+            child: _GlossyOrb(
+              size: 310,
+              colors: [_glossHighlight, Colors.transparent],
+            ),
+          ),
+          const Positioned(
+            top: 260,
+            left: -130,
+            child: _GlossyOrb(
+              size: 330,
+              colors: [_glossRose, Colors.transparent],
+            ),
+          ),
+          const Positioned(
+            bottom: -100,
+            right: -100,
+            child: _GlossyOrb(
+              size: 360,
+              colors: [_glossBlue, Colors.transparent],
+            ),
+          ),
+          child,
+        ],
+      ),
+    );
+  }
+}
+
+class _GlossyOrb extends StatelessWidget {
+  const _GlossyOrb({required this.size, required this.colors});
+
+  final double size;
+  final List<Color> colors;
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: ImageFiltered(
+        imageFilter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: RadialGradient(colors: colors),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 enum AppLanguage { en, mr }
 
@@ -174,7 +508,7 @@ const Map<String, String> _mrTranslations = {
   'Payment': 'पेमेंट',
   'Date': 'तारीख',
   'Balance': 'बाकी',
-  'Deliver when templates are Ready and balance is Rs 0, or add a promise note for DWP.':
+  'Deliver when all templates are Ready and balance is Rs 0, or add a promise note and promise date for DWP.':
       'टेम्पलेट्स तयार आणि बाकी Rs 0 असल्यावर डिलिव्हर करा, किंवा DWP साठी वचन टीप जोडा.',
   'Close': 'बंद',
   'Save': 'जतन',
@@ -458,196 +792,209 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
   bool _showShopSettings = false;
   AppLanguage _language = AppLanguage.en;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  final TailoringStateRepository _stateRepository = TailoringStateRepository();
   ShopWorker? _loggedInWorker;
   ShopWorker? _passwordResetWorker;
   bool _isResettingOwnerPassword = false;
   bool _ownerCredentialsLoaded = false;
   bool _isOwnerSessionActive = false;
+  String? _cloudSyncError;
   String? _ownerPasswordHash;
   late final Future<void> _ownerCredentialsFuture;
+  late final Future<void> _stateLoadFuture;
 
-  final List<TailorCustomer> _customers = [
-    TailorCustomer(
-      name: 'Aarav Mehta',
-      phone: '9876543410',
-      address: 'Main road, Pune',
-      measurementsByTemplate: {
-        'Men Shirt': TemplateMeasurement(
-          templateName: 'Men Shirt',
-          updatedAt: DateTime.now().subtract(const Duration(days: 3)),
-          values: {
-            'Chest': '39',
-            'Waist': '34',
-            'Shoulder': '17',
-            'Sleeve': '24',
-            'Length': '29',
-          },
-        ),
-      },
-    ),
-    TailorCustomer(
-      name: 'Meera Shah',
-      phone: '9988776655',
-      address: 'Station Road, Mumbai',
-      measurementsByTemplate: {
-        'Kurti': TemplateMeasurement(
-          templateName: 'Kurti',
-          updatedAt: DateTime.now().subtract(const Duration(days: 2)),
-          values: {
-            'Bust': '36',
-            'Waist': '30',
-            'Hip': '38',
-            'Armhole': '15',
-            'Length': '42',
-          },
-        ),
-      },
-    ),
-  ];
+  final List<TailorCustomer> _customers = AppConfig.isProduction
+      ? <TailorCustomer>[]
+      : [
+          TailorCustomer(
+            name: 'Aarav Mehta',
+            phone: '9876543410',
+            address: 'Main road, Pune',
+            weightKg: 1.8,
+            measurementsByTemplate: {
+              'Men Shirt': TemplateMeasurement(
+                templateName: 'Men Shirt',
+                updatedAt: DateTime.now().subtract(const Duration(days: 3)),
+                values: {
+                  'Chest': '39',
+                  'Waist': '34',
+                  'Shoulder': '17',
+                  'Sleeve': '24',
+                  'Length': '29',
+                },
+              ),
+            },
+          ),
+          TailorCustomer(
+            name: 'Meera Shah',
+            phone: '9988776655',
+            address: 'Station Road, Mumbai',
+            weightKg: 2.4,
+            measurementsByTemplate: {
+              'Kurti': TemplateMeasurement(
+                templateName: 'Kurti',
+                updatedAt: DateTime.now().subtract(const Duration(days: 2)),
+                values: {
+                  'Bust': '36',
+                  'Waist': '30',
+                  'Hip': '38',
+                  'Armhole': '15',
+                  'Length': '42',
+                },
+              ),
+            },
+          ),
+        ];
 
-  final List<TailorOrder> _orders = [
-    TailorOrder(
-      id: 'ORD-1042',
-      customerName: 'Aarav Mehta',
-      items: [
-        OrderTemplateItem(
-          templateName: 'Men Shirt',
-          quantity: 2,
-          status: 'Ready',
-          charges: 900,
-          makerCharges: 250,
-          measurementUpdatedAt:
-              DateTime.now().subtract(const Duration(days: 3)),
-          assignedWorkerByUnit: {0: '9876502222', 1: '9876502222'},
-          workerPaymentStatusByUnit: {0: 'Paid-Worker', 1: 'Paid-Worker'},
-          measurements: {
-            'Chest': '39',
-            'Waist': '34',
-            'Shoulder': '17',
-            'Sleeve': '24',
-            'Length': '29',
-          },
-        ),
-      ],
-      orderDate: DateTime.now().subtract(const Duration(days: 4)),
-      dueDate: DateTime.now().add(const Duration(days: 2)),
-      status: 'In Stitching',
-      paymentMode: 'UPI',
-      advancePayment: 800,
-      payments: [
-        OrderPayment(
-          amount: 800,
-          mode: 'UPI',
-          paidAt: DateTime.now().subtract(const Duration(days: 4)),
-        ),
-      ],
-      weightKg: 1.8,
-      tailor: 'Master Tailor',
-      priority: true,
-      notes: 'Add reference pocket style.',
-    ),
-    TailorOrder(
-      id: 'ORD-1041',
-      customerName: 'Meera Shah',
-      items: [
-        OrderTemplateItem(
-          templateName: 'Kurti',
-          quantity: 1,
-          status: 'In Stitching',
-          charges: 1800,
-          makerCharges: 600,
-          measurementUpdatedAt:
-              DateTime.now().subtract(const Duration(days: 2)),
-          assignedWorkerByUnit: {0: '9876502222'},
-          measurements: {
-            'Bust': '36',
-            'Waist': '30',
-            'Hip': '38',
-            'Armhole': '15',
-            'Length': '42',
-          },
-        ),
-      ],
-      orderDate: DateTime.now().subtract(const Duration(days: 1)),
-      dueDate: DateTime.now().add(const Duration(days: 5)),
-      status: 'In Stitching',
-      paymentMode: 'Cash',
-      advancePayment: 1000,
-      payments: [
-        OrderPayment(
-          amount: 1000,
-          mode: 'Cash',
-          paidAt: DateTime.now().subtract(const Duration(days: 1)),
-        ),
-      ],
-      weightKg: 2.4,
-      tailor: 'Shop Manager',
-      priority: false,
-      notes: 'Embroidery on sleeves.',
-    ),
-  ];
+  final List<TailorOrder> _orders = AppConfig.isProduction
+      ? <TailorOrder>[]
+      : [
+          TailorOrder(
+            id: 'ORD-1042',
+            customerName: 'Aarav Mehta',
+            items: [
+              OrderTemplateItem(
+                templateName: 'Men Shirt',
+                quantity: 2,
+                status: 'Ready',
+                charges: 900,
+                makerCharges: 250,
+                measurementUpdatedAt:
+                    DateTime.now().subtract(const Duration(days: 3)),
+                assignedWorkerByUnit: {0: '9876502222', 1: '9876502222'},
+                workerPaymentStatusByUnit: {0: 'Paid-Worker', 1: 'Paid-Worker'},
+                measurements: {
+                  'Chest': '39',
+                  'Waist': '34',
+                  'Shoulder': '17',
+                  'Sleeve': '24',
+                  'Length': '29',
+                },
+              ),
+            ],
+            orderDate: DateTime.now().subtract(const Duration(days: 4)),
+            dueDate: DateTime.now().add(const Duration(days: 2)),
+            status: 'In Stitching',
+            paymentMode: 'UPI',
+            advancePayment: 800,
+            payments: [
+              OrderPayment(
+                amount: 800,
+                mode: 'UPI',
+                paidAt: DateTime.now().subtract(const Duration(days: 4)),
+              ),
+            ],
+            weightKg: 1.8,
+            tailor: 'Master Tailor',
+            priority: true,
+            notes: 'Add reference pocket style.',
+          ),
+          TailorOrder(
+            id: 'ORD-1041',
+            customerName: 'Meera Shah',
+            items: [
+              OrderTemplateItem(
+                templateName: 'Kurti',
+                quantity: 1,
+                status: 'In Stitching',
+                charges: 1800,
+                makerCharges: 600,
+                measurementUpdatedAt:
+                    DateTime.now().subtract(const Duration(days: 2)),
+                assignedWorkerByUnit: {0: '9876502222'},
+                measurements: {
+                  'Bust': '36',
+                  'Waist': '30',
+                  'Hip': '38',
+                  'Armhole': '15',
+                  'Length': '42',
+                },
+              ),
+            ],
+            orderDate: DateTime.now().subtract(const Duration(days: 1)),
+            dueDate: DateTime.now().add(const Duration(days: 5)),
+            status: 'In Stitching',
+            paymentMode: 'Cash',
+            advancePayment: 1000,
+            payments: [
+              OrderPayment(
+                amount: 1000,
+                mode: 'Cash',
+                paidAt: DateTime.now().subtract(const Duration(days: 1)),
+              ),
+            ],
+            weightKg: 2.4,
+            tailor: 'Shop Manager',
+            priority: false,
+            notes: 'Embroidery on sleeves.',
+          ),
+        ];
 
-  final List<GarmentTemplate> _templates = [
-    GarmentTemplate(
-      name: 'Men Shirt',
-      charges: 900,
-      makerCharges: 250,
-      fields: ['Chest', 'Waist', 'Shoulder', 'Sleeve', 'Length'],
-    ),
-    GarmentTemplate(
-      name: 'Kurti',
-      charges: 1800,
-      makerCharges: 600,
-      fields: ['Bust', 'Waist', 'Hip', 'Armhole', 'Length'],
-    ),
-  ];
+  final List<GarmentTemplate> _templates = AppConfig.isProduction
+      ? <GarmentTemplate>[]
+      : [
+          GarmentTemplate(
+            name: 'Men Shirt',
+            charges: 900,
+            makerCharges: 250,
+            fields: ['Chest', 'Waist', 'Shoulder', 'Sleeve', 'Length'],
+          ),
+          GarmentTemplate(
+            name: 'Kurti',
+            charges: 1800,
+            makerCharges: 600,
+            fields: ['Bust', 'Waist', 'Hip', 'Armhole', 'Length'],
+          ),
+        ];
 
-  final List<ShopWorker> _workers = [
-    const ShopWorker(
-      name: 'Ramesh Pawar',
-      mobile: '9876501111',
-      speciality: 'cutting',
-      roles: ['cutter'],
-      username: '9876501111',
-      defaultPassword: 'RameshPawar501111',
-      password: 'RameshPawar501111',
-      mustResetPassword: true,
-      walletBalance: 0,
-    ),
-    const ShopWorker(
-      name: 'Sahil Khan',
-      mobile: '9876502222',
-      speciality: 'shirt-maker',
-      roles: ['maker'],
-      username: '9876502222',
-      defaultPassword: 'SahilKhan502222',
-      password: 'SahilKhan502222',
-      mustResetPassword: true,
-      walletBalance: 500,
-    ),
-    const ShopWorker(
-      name: 'Pooja Jadhav',
-      mobile: '9876503333',
-      speciality: 'pant-maker',
-      roles: ['accountant', 'maker'],
-      username: '9876503333',
-      defaultPassword: 'PoojaJadhav503333',
-      password: 'PoojaJadhav503333',
-      mustResetPassword: true,
-      walletBalance: 600,
-    ),
-    const ShopWorker(
-      name: 'Nikhil Patil',
-      mobile: '9876504444',
-      speciality: 'all',
-      roles: ['manager', 'cutter', 'maker'],
-      username: '9876504444',
-      defaultPassword: 'NikhilPatil504444',
-      password: 'NikhilPatil504444',
-      mustResetPassword: true,
-      walletBalance: 250,
-    ),
-  ];
+  final List<ShopWorker> _workers = AppConfig.isProduction
+      ? <ShopWorker>[]
+      : [
+          const ShopWorker(
+            name: 'Ramesh Pawar',
+            mobile: '9876501111',
+            speciality: 'cutting',
+            roles: ['cutter'],
+            username: '9876501111',
+            defaultPassword: 'RameshPawar501111',
+            password: 'RameshPawar501111',
+            mustResetPassword: true,
+            walletBalance: 0,
+          ),
+          const ShopWorker(
+            name: 'Sahil Khan',
+            mobile: '9876502222',
+            speciality: 'shirt-maker',
+            roles: ['maker'],
+            username: '9876502222',
+            defaultPassword: 'SahilKhan502222',
+            password: 'SahilKhan502222',
+            mustResetPassword: true,
+            walletBalance: 500,
+          ),
+          const ShopWorker(
+            name: 'Pooja Jadhav',
+            mobile: '9876503333',
+            speciality: 'pant-maker',
+            roles: ['accountant', 'maker'],
+            username: '9876503333',
+            defaultPassword: 'PoojaJadhav503333',
+            password: 'PoojaJadhav503333',
+            mustResetPassword: true,
+            walletBalance: 600,
+          ),
+          const ShopWorker(
+            name: 'Nikhil Patil',
+            mobile: '9876504444',
+            speciality: 'all',
+            roles: ['manager', 'cutter', 'maker'],
+            username: '9876504444',
+            defaultPassword: 'NikhilPatil504444',
+            password: 'NikhilPatil504444',
+            mustResetPassword: true,
+            walletBalance: 250,
+          ),
+        ];
 
   late ShopProfile _profile;
 
@@ -663,19 +1010,26 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
       openDays: '24/7',
     );
     _loadLanguage();
+    _stateLoadFuture = _loadPersistentState();
     _ownerCredentialsFuture = _loadOwnerCredentials();
     _completeLaunchAnimation();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _requestContactsPermissionOnFirstLaunch();
+    });
   }
 
   Future<void> _completeLaunchAnimation() async {
-    await Future<void>.delayed(const Duration(seconds: 15));
-    await _ownerCredentialsFuture;
+    await Future<void>.delayed(_launchDuration);
+    await Future.wait([_ownerCredentialsFuture, _stateLoadFuture]);
+    if (AppConfig.isProduction && _isOwnerSessionActive) {
+      await _restoreProductionSync();
+    }
     if (!mounted || _stage != _Stage.launch) return;
     setState(() => _stage = _isOwnerSessionActive ? _Stage.home : _Stage.login);
   }
 
   Future<void> _loadLanguage() async {
-    final code = await _storage.read(key: _languageStorageKey);
+    final code = await _readSecureValue(_storage, _languageStorageKey);
     if (!mounted) return;
     setState(() {
       _language = code == 'mr' ? AppLanguage.mr : AppLanguage.en;
@@ -690,11 +1044,29 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
     );
   }
 
+  Future<void> _requestContactsPermissionOnFirstLaunch() async {
+    if (!_phoneContactLookup.isSupported) return;
+    final wasRequested = await _readSecureValue(
+      _storage,
+      _contactsPermissionRequestedStorageKey,
+    );
+    if (wasRequested == 'true') return;
+
+    final status = await _phoneContactLookup.requestPermission();
+    if (status != PhoneContactAccessStatus.failed) {
+      await _storage.write(
+        key: _contactsPermissionRequestedStorageKey,
+        value: 'true',
+      );
+    }
+  }
+
   Future<void> _loadOwnerCredentials() async {
-    final storedPhone = await _storage.read(key: _ownerPhoneStorageKey);
-    final passwordHash = await _storage.read(key: _ownerPasswordHashStorageKey);
+    final storedPhone = await _readSecureValue(_storage, _ownerPhoneStorageKey);
+    final passwordHash =
+        await _readSecureValue(_storage, _ownerPasswordHashStorageKey);
     final authenticatedPhone =
-        await _storage.read(key: _ownerSessionStorageKey);
+        await _readSecureValue(_storage, _ownerSessionStorageKey);
     if (!mounted) return;
     setState(() {
       final hasChangedPassword =
@@ -728,40 +1100,9 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
       child: MaterialApp(
         title: 'Digital Tailoring',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          useMaterial3: true,
-          brightness: Brightness.light,
-          scaffoldBackgroundColor: _surface,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: _brand,
-            primary: _brand,
-            secondary: _accent,
-            surface: const Color(0xFFFFFBF6),
-          ),
-          textTheme: ThemeData.light().textTheme.apply(
-                bodyColor: _ink,
-                displayColor: _ink,
-              ),
-          appBarTheme: const AppBarTheme(
-            centerTitle: false,
-            elevation: 0,
-            backgroundColor: _surface,
-            foregroundColor: _ink,
-          ),
-          cardTheme: CardThemeData(
-            elevation: 0,
-            color: const Color(0xFFFFFBF6),
-            margin: EdgeInsets.zero,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-              side: const BorderSide(color: Color(0xFFEBD8C4)),
-            ),
-          ),
-          inputDecorationTheme: InputDecorationTheme(
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-          ),
+        theme: _buildGlossyTheme(),
+        builder: (context, child) => _GlossyAppBackground(
+          child: child ?? const SizedBox.shrink(),
         ),
         home: switch (_stage) {
           _Stage.launch => const LaunchScreen(),
@@ -784,6 +1125,7 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
                   _profile = profile;
                   _stage = _Stage.allSet;
                 });
+                unawaited(_persistState());
               },
             ),
           _Stage.allSet => AllSetScreen(
@@ -799,6 +1141,7 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
               orders: _orders,
               templates: _templates,
               workers: _workers,
+              cloudSyncError: _cloudSyncError,
               onTabChanged: (value) => setState(() {
                 _tab = value;
                 _showShopSettings = false;
@@ -819,7 +1162,7 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
     );
   }
 
-  LoginResult _attemptLogin(String username, String password) {
+  Future<LoginResult> _attemptLogin(String username, String password) async {
     final normalized = username.trim();
     final enteredPassword = password.trim();
     if (normalized == _profile.phone) {
@@ -829,6 +1172,31 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
         );
       }
       final hasNewPassword = _ownerPasswordHash != null;
+      if (AppConfig.isProduction &&
+          !hasNewPassword &&
+          enteredPassword != AppConfig.ownerDefaultPassword) {
+        try {
+          await _connectProductionOwner(
+            enteredPassword,
+            allowSignUp: false,
+          );
+          await _saveOwnerSessionPassword(enteredPassword);
+          if (!mounted) {
+            return const LoginResult.failure('Login was cancelled.');
+          }
+          setState(() {
+            _tab = 0;
+            _showShopSettings = false;
+            _isOwnerSessionActive = true;
+            _loggedInWorker = null;
+            _passwordResetWorker = null;
+            _stage = _Stage.home;
+          });
+          return const LoginResult.success();
+        } catch (error) {
+          return LoginResult.failure(_productionError(error));
+        }
+      }
       final validPassword = hasNewPassword
           ? const PasswordHasher().verify(
               enteredPassword,
@@ -839,6 +1207,17 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
         return const LoginResult.failure(
           'Invalid mobile number or password.',
         );
+      }
+      if (AppConfig.isProduction && hasNewPassword) {
+        try {
+          await _connectProductionOwner(
+            enteredPassword,
+            allowSignUp: true,
+          );
+          _cloudSyncError = null;
+        } catch (error) {
+          _cloudSyncError = _productionError(error);
+        }
       }
       setState(() {
         _tab = 0;
@@ -892,19 +1271,17 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
       _resetWorkerPassword(password);
       return;
     }
-    final passwordHash = const PasswordHasher().hash(password);
-    await _storage.write(key: _ownerPhoneStorageKey, value: _profile.phone);
-    await _storage.write(
-      key: _ownerPasswordHashStorageKey,
-      value: passwordHash,
-    );
-    await _storage.write(
-      key: _ownerSessionStorageKey,
-      value: _profile.phone,
-    );
+    if (AppConfig.isProduction) {
+      try {
+        await _connectProductionOwner(password, allowSignUp: true);
+        _cloudSyncError = null;
+      } catch (error) {
+        _cloudSyncError = _productionError(error);
+      }
+    }
+    await _saveOwnerSessionPassword(password);
     if (!mounted) return;
     setState(() {
-      _ownerPasswordHash = passwordHash;
       _isOwnerSessionActive = true;
       _isResettingOwnerPassword = false;
       _loggedInWorker = null;
@@ -917,6 +1294,7 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
 
   Future<void> _logout() async {
     await _storage.delete(key: _ownerSessionStorageKey);
+    if (AppConfig.isProduction) await _stateRepository.disconnect();
     if (!mounted) return;
     setState(() {
       _isOwnerSessionActive = false;
@@ -946,12 +1324,14 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
       _showShopSettings = false;
       _stage = _Stage.home;
     });
+    unawaited(_persistState());
   }
 
   void _saveCustomer(TailorCustomer customer) {
     setState(() {
-      final index =
-          _customers.indexWhere((item) => item.phone == customer.phone);
+      final index = _customers.indexWhere(
+        (item) => phoneNumbersMatch(item.phone, customer.phone),
+      );
       if (index >= 0) {
         _customers[index] = customer.copyWith(
           measurementsByTemplate: _customers[index].measurementsByTemplate,
@@ -960,6 +1340,7 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
         _customers.insert(0, customer);
       }
     });
+    unawaited(_persistState());
   }
 
   void _saveTemplate(GarmentTemplate template) {
@@ -971,10 +1352,12 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
         _templates.insert(0, template);
       }
     });
+    unawaited(_persistState());
   }
 
   void _deleteTemplate(GarmentTemplate template) {
     setState(() => _templates.remove(template));
+    unawaited(_persistState());
   }
 
   void _saveOrder(TailorOrder order) {
@@ -986,6 +1369,7 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
         _orders.insert(0, order);
       }
     });
+    unawaited(_persistState());
   }
 
   void _saveWorker(ShopWorker worker) {
@@ -997,6 +1381,7 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
         _workers.insert(0, worker);
       }
     });
+    unawaited(_persistState());
   }
 
   void _recordWorkerPayment({
@@ -1030,13 +1415,10 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
         var changed = false;
         final items = <OrderTemplateItem>[];
         for (final item in order.items) {
-          if (item.status != 'Ready') {
-            items.add(item);
-            continue;
-          }
           final statuses = Map<int, String>.of(item.workerPaymentStatusByUnit);
           for (final entry in item.assignedWorkerByUnit.entries) {
-            if (entry.value == worker.mobile) {
+            if (entry.value == worker.mobile &&
+                item.statusForUnit(entry.key) == 'Ready') {
               statuses[entry.key] = 'Paid-Worker';
               changed = true;
             }
@@ -1050,6 +1432,7 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
         }
       }
     });
+    unawaited(_persistState());
   }
 
   void _assignOrderTemplateWorker({
@@ -1066,37 +1449,43 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
       final order = _orders[orderIndex];
       if (itemIndex >= order.items.length) return;
       final item = order.items[itemIndex];
-      final wasReady = item.status == 'Ready';
-      final previousWorkerMobile = item.assignedWorkerByUnit[unitIndex];
-      final paymentStatuses =
-          Map<int, String>.of(item.workerPaymentStatusByUnit)
-            ..remove(unitIndex);
+      if (unitIndex < 0 || unitIndex >= item.quantity) return;
+      final currentStatus = item.statusForUnit(unitIndex);
+      final assignedWorkerMobile = item.assignedWorkerByUnit[unitIndex];
+      if (!canAssignOrderUnit(
+        currentStatus: currentStatus,
+        assignedWorkerMobile: assignedWorkerMobile,
+      )) {
+        return;
+      }
       final items = [...order.items];
       final nextStatus = status ?? 'In Stitching';
-      final becomesReady = nextStatus == 'Ready';
-      items[itemIndex] = item.copyWith(
-        status: nextStatus,
-        assignedWorkerByUnit: {
-          ...item.assignedWorkerByUnit,
-          unitIndex: worker.mobile,
-        },
-        workerPaymentStatusByUnit: paymentStatuses,
+      final transition = assignOrderUnit(
+        unitIndex: unitIndex,
+        defaultStatus: item.status,
+        nextStatus: nextStatus,
+        nextWorkerMobile: worker.mobile,
+        makerCharges: item.makerCharges,
+        assignedWorkerByUnit: item.assignedWorkerByUnit,
+        unitStatusByUnit: item.unitStatusByUnit,
+        workerPaymentStatusByUnit: item.workerPaymentStatusByUnit,
       );
+      items[itemIndex] = item.copyWith(
+        assignedWorkerByUnit: transition.assignedWorkerByUnit,
+        unitStatusByUnit: transition.unitStatusByUnit,
+        workerPaymentStatusByUnit: transition.workerPaymentStatusByUnit,
+      );
+      final nextOrderStatus = _orderWorkStatus(items);
       _orders[orderIndex] = order.copyWith(
-        status: nextStatus,
+        status: nextOrderStatus,
         items: items,
       );
 
-      if (wasReady &&
-          previousWorkerMobile != null &&
-          (!becomesReady || previousWorkerMobile != worker.mobile)) {
-        _updateWorkerWallet(previousWorkerMobile, -item.makerCharges);
-      }
-      if (becomesReady &&
-          (!wasReady || previousWorkerMobile != worker.mobile)) {
-        _updateWorkerWallet(worker.mobile, item.makerCharges);
+      for (final walletDelta in transition.walletDeltas.entries) {
+        _updateWorkerWallet(walletDelta.key, walletDelta.value);
       }
     });
+    unawaited(_persistState());
   }
 
   void _updateWorkerWallet(String mobile, int amount) {
@@ -1112,9 +1501,408 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
       _loggedInWorker = updated;
     }
   }
+
+  Future<void> _loadPersistentState() async {
+    final snapshot = await _stateRepository.loadLocal();
+    if (snapshot == null || !mounted) return;
+    final payload = migrateLegacyProductionSeed(
+      snapshot.payload,
+      isProduction: AppConfig.isProduction,
+    );
+    _applyState(payload);
+    if (!identical(payload, snapshot.payload)) {
+      await _stateRepository.save(_serializeState());
+    }
+  }
+
+  Future<void> _persistState() async {
+    try {
+      await _stateRepository.save(_serializeState());
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not save app data: $error')),
+      );
+    }
+  }
+
+  Future<void> _restoreProductionSync() async {
+    try {
+      final snapshot = await _stateRepository.connectExisting(
+        onRemoteChange: (remote) {
+          if (!mounted) return;
+          final payload = migrateLegacyProductionSeed(
+            remote.payload,
+            isProduction: AppConfig.isProduction,
+          );
+          _applyState(payload);
+          if (!identical(payload, remote.payload)) {
+            unawaited(_stateRepository.save(_serializeState()));
+          }
+        },
+      );
+      if (snapshot != null && mounted) {
+        final payload = migrateLegacyProductionSeed(
+          snapshot.payload,
+          isProduction: AppConfig.isProduction,
+        );
+        _applyState(payload);
+        if (!identical(payload, snapshot.payload)) {
+          await _stateRepository.save(_serializeState());
+        }
+      }
+      _cloudSyncError = null;
+    } catch (error) {
+      _cloudSyncError = _productionError(error);
+      // The local SQLite snapshot remains available while cloud is offline.
+    }
+  }
+
+  Future<void> _connectProductionOwner(
+    String password, {
+    required bool allowSignUp,
+  }) async {
+    final snapshot = await _stateRepository.connectOwner(
+      phone: _profile.phone,
+      password: password,
+      ownerName: _profile.ownerName,
+      shopName: _profile.shopName,
+      address: _profile.address,
+      maxOrdersPerDay: _profile.maxOrdersPerDay,
+      initialPayload: _serializeState(),
+      allowSignUp: allowSignUp,
+      onRemoteChange: (remote) {
+        if (mounted) _applyState(remote.payload);
+      },
+    );
+    if (mounted) {
+      final payload = migrateLegacyProductionSeed(
+        snapshot.payload,
+        isProduction: AppConfig.isProduction,
+      );
+      _applyState(payload);
+      if (!identical(payload, snapshot.payload)) {
+        await _stateRepository.save(_serializeState());
+      }
+    }
+  }
+
+  Future<void> _saveOwnerSessionPassword(String password) async {
+    final passwordHash = const PasswordHasher().hash(password);
+    await Future.wait([
+      _storage.write(key: _ownerPhoneStorageKey, value: _profile.phone),
+      _storage.write(
+        key: _ownerPasswordHashStorageKey,
+        value: passwordHash,
+      ),
+      _storage.write(
+        key: _ownerSessionStorageKey,
+        value: _profile.phone,
+      ),
+    ]);
+    _ownerPasswordHash = passwordHash;
+  }
+
+  String _productionError(Object error) {
+    final text = error.toString();
+    if (text.contains('PGRST205') ||
+        text.contains('tailoring_app_state') ||
+        text.contains("table 'public.shops'")) {
+      return 'Supabase schema is not applied. Run both SQL files in '
+          'supabase/migrations in filename order.';
+    }
+    return 'Production sync failed: $text';
+  }
+
+  Map<String, dynamic> _serializeState() {
+    return {
+      'schema': currentTailoringStateSchema,
+      'profile': {
+        'ownerName': _profile.ownerName,
+        'shopName': _profile.shopName,
+        'phone': _profile.phone,
+        'address': _profile.address,
+        'maxOrdersPerDay': _profile.maxOrdersPerDay,
+        'openDays': _profile.openDays,
+      },
+      'customers': [
+        for (final customer in _customers)
+          {
+            'name': customer.name,
+            'phone': customer.phone,
+            'address': customer.address,
+            'weightKg': customer.weightKg,
+            'measurements': {
+              for (final entry in customer.measurementsByTemplate.entries)
+                entry.key: {
+                  'templateName': entry.value.templateName,
+                  'updatedAt': entry.value.updatedAt.toIso8601String(),
+                  'values': entry.value.values,
+                },
+            },
+          },
+      ],
+      'templates': [
+        for (final template in _templates)
+          {
+            'name': template.name,
+            'charges': template.charges,
+            'makerCharges': template.makerCharges,
+            'fields': template.fields,
+          },
+      ],
+      'workers': [
+        for (final worker in _workers)
+          {
+            'name': worker.name,
+            'mobile': worker.mobile,
+            'speciality': worker.speciality,
+            'roles': worker.roles,
+            'username': worker.username,
+            'mustResetPassword': worker.mustResetPassword,
+            'walletBalance': worker.walletBalance,
+            'payments': [
+              for (final payment in worker.payments)
+                {
+                  'amount': payment.amount,
+                  'paidAt': payment.paidAt.toIso8601String(),
+                  'note': payment.note,
+                },
+            ],
+          },
+      ],
+      'orders': [
+        for (final order in _orders)
+          {
+            'id': order.id,
+            'customerName': order.customerName,
+            'orderDate': order.orderDate.toIso8601String(),
+            'dueDate': order.dueDate.toIso8601String(),
+            'status': order.status,
+            'paymentMode': order.paymentMode,
+            'advancePayment': order.advancePayment,
+            'weightKg': order.weightKg,
+            'tailor': order.tailor,
+            'priority': order.priority,
+            'notes': order.notes,
+            'payments': [
+              for (final payment in order.payments)
+                {
+                  'amount': payment.amount,
+                  'mode': payment.mode,
+                  'paidAt': payment.paidAt.toIso8601String(),
+                  'note': payment.note,
+                  'promiseDate': payment.promiseDate?.toIso8601String(),
+                },
+            ],
+            'items': [
+              for (final item in order.items)
+                {
+                  'templateName': item.templateName,
+                  'quantity': item.quantity,
+                  'status': item.status,
+                  'charges': item.charges,
+                  'makerCharges': item.makerCharges,
+                  'measurementUpdatedAt':
+                      item.measurementUpdatedAt.toIso8601String(),
+                  'measurements': item.measurements,
+                  'assignedWorkerByUnit':
+                      _intMapToJson(item.assignedWorkerByUnit),
+                  'unitStatusByUnit': _intMapToJson(item.unitStatusByUnit),
+                  'workerPaymentStatusByUnit':
+                      _intMapToJson(item.workerPaymentStatusByUnit),
+                },
+            ],
+          },
+      ],
+    };
+  }
+
+  void _applyState(Map<String, dynamic> payload) {
+    final profile = Map<String, dynamic>.from(payload['profile'] as Map);
+    final localWorkers = {
+      for (final worker in _workers) worker.mobile: worker,
+    };
+    setState(() {
+      _profile = ShopProfile(
+        ownerName: profile['ownerName'] as String,
+        shopName: profile['shopName'] as String,
+        phone: profile['phone'] as String,
+        address: profile['address'] as String,
+        maxOrdersPerDay: (profile['maxOrdersPerDay'] as num).toInt(),
+        openDays: profile['openDays'] as String,
+      );
+      _customers
+        ..clear()
+        ..addAll(
+          (payload['customers'] as List).map(
+            (raw) => _customerFromJson(
+              Map<String, dynamic>.from(raw as Map),
+            ),
+          ),
+        );
+      _templates
+        ..clear()
+        ..addAll(
+          (payload['templates'] as List).map(
+            (raw) => _templateFromJson(
+              Map<String, dynamic>.from(raw as Map),
+            ),
+          ),
+        );
+      _workers
+        ..clear()
+        ..addAll(
+          (payload['workers'] as List).map(
+            (raw) => _workerFromJson(
+              Map<String, dynamic>.from(raw as Map),
+              localWorkers,
+            ),
+          ),
+        );
+      _orders
+        ..clear()
+        ..addAll(
+          (payload['orders'] as List).map(
+            (raw) => _orderFromJson(
+              Map<String, dynamic>.from(raw as Map),
+            ),
+          ),
+        );
+    });
+  }
+
+  TailorCustomer _customerFromJson(Map<String, dynamic> json) {
+    final measurements = Map<String, dynamic>.from(
+      json['measurements'] as Map? ?? const {},
+    );
+    return TailorCustomer(
+      name: json['name'] as String,
+      phone: json['phone'] as String,
+      address: json['address'] as String,
+      weightKg: (json['weightKg'] as num?)?.toDouble() ?? 0,
+      measurementsByTemplate: {
+        for (final entry in measurements.entries)
+          entry.key: TemplateMeasurement(
+            templateName: (entry.value as Map)['templateName'] as String,
+            updatedAt:
+                DateTime.parse((entry.value as Map)['updatedAt'] as String),
+            values: Map<String, String>.from(
+              (entry.value as Map)['values'] as Map,
+            ),
+          ),
+      },
+    );
+  }
+
+  GarmentTemplate _templateFromJson(Map<String, dynamic> json) {
+    return GarmentTemplate(
+      name: json['name'] as String,
+      charges: (json['charges'] as num).toInt(),
+      makerCharges: (json['makerCharges'] as num).toInt(),
+      fields: List<String>.from(json['fields'] as List),
+    );
+  }
+
+  ShopWorker _workerFromJson(
+    Map<String, dynamic> json,
+    Map<String, ShopWorker> localWorkers,
+  ) {
+    final mobile = json['mobile'] as String;
+    final local = localWorkers[mobile];
+    return ShopWorker(
+      name: json['name'] as String,
+      mobile: mobile,
+      speciality: json['speciality'] as String,
+      roles: List<String>.from(json['roles'] as List),
+      username: json['username'] as String,
+      defaultPassword: local?.defaultPassword ?? '',
+      password: local?.password ?? '',
+      mustResetPassword: json['mustResetPassword'] as bool? ?? true,
+      walletBalance: (json['walletBalance'] as num).toInt(),
+      payments: [
+        for (final raw in json['payments'] as List? ?? const [])
+          WorkerPayment(
+            amount: ((raw as Map)['amount'] as num).toInt(),
+            paidAt: DateTime.parse(raw['paidAt'] as String),
+            note: raw['note'] as String,
+          ),
+      ],
+    );
+  }
+
+  TailorOrder _orderFromJson(Map<String, dynamic> json) {
+    return TailorOrder(
+      id: json['id'] as String,
+      customerName: json['customerName'] as String,
+      items: [
+        for (final raw in json['items'] as List)
+          _orderItemFromJson(Map<String, dynamic>.from(raw as Map)),
+      ],
+      orderDate: DateTime.parse(json['orderDate'] as String),
+      dueDate: DateTime.parse(json['dueDate'] as String),
+      status: json['status'] as String,
+      paymentMode: json['paymentMode'] as String,
+      advancePayment: (json['advancePayment'] as num).toInt(),
+      payments: [
+        for (final raw in json['payments'] as List)
+          OrderPayment(
+            amount: ((raw as Map)['amount'] as num).toInt(),
+            mode: raw['mode'] as String,
+            paidAt: DateTime.parse(raw['paidAt'] as String),
+            note: raw['note'] as String?,
+            promiseDate: raw['promiseDate'] == null
+                ? null
+                : DateTime.parse(raw['promiseDate'] as String),
+          ),
+      ],
+      weightKg: (json['weightKg'] as num).toDouble(),
+      tailor: json['tailor'] as String,
+      priority: json['priority'] as bool,
+      notes: json['notes'] as String,
+    );
+  }
+
+  OrderTemplateItem _orderItemFromJson(Map<String, dynamic> json) {
+    return OrderTemplateItem(
+      templateName: json['templateName'] as String,
+      quantity: (json['quantity'] as num).toInt(),
+      status: json['status'] as String,
+      charges: (json['charges'] as num).toInt(),
+      makerCharges: (json['makerCharges'] as num).toInt(),
+      measurementUpdatedAt:
+          DateTime.parse(json['measurementUpdatedAt'] as String),
+      measurements: Map<String, String>.from(json['measurements'] as Map),
+      assignedWorkerByUnit: _intMapFromJson(json['assignedWorkerByUnit']),
+      unitStatusByUnit: _intMapFromJson(json['unitStatusByUnit']),
+      workerPaymentStatusByUnit:
+          _intMapFromJson(json['workerPaymentStatusByUnit']),
+    );
+  }
+
+  Map<String, String> _intMapToJson(Map<int, String> source) {
+    return {for (final entry in source.entries) '${entry.key}': entry.value};
+  }
+
+  Map<int, String> _intMapFromJson(Object? source) {
+    if (source == null) return {};
+    return {
+      for (final entry in Map<String, dynamic>.from(source as Map).entries)
+        int.parse(entry.key): entry.value as String,
+    };
+  }
 }
 
 enum _Stage { launch, welcome, login, passwordReset, setup, allSet, home }
+
+String _orderWorkStatus(List<OrderTemplateItem> items) {
+  if (items.every((item) => item.allUnitsReady)) return 'Ready';
+  if (items.any((item) => item.aggregateStatus == 'In Stitching')) {
+    return 'In Stitching';
+  }
+  if (items.any((item) => item.aggregateStatus == 'Hold')) return 'Hold';
+  return 'Measurements';
+}
 
 class LoginResult {
   const LoginResult._({
@@ -1151,7 +1939,7 @@ class _LaunchScreenState extends State<LaunchScreen>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 15),
+      duration: _launchDuration,
     )..forward();
     _ease = CurvedAnimation(parent: _controller, curve: Curves.easeInOutCubic);
   }
@@ -1415,7 +2203,7 @@ class LoginScreen extends StatefulWidget {
   });
 
   final String configuredPhone;
-  final LoginResult Function(String username, String password) onLogin;
+  final Future<LoginResult> Function(String username, String password) onLogin;
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -1425,6 +2213,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _phone;
   final _password = TextEditingController();
+  bool _isLoggingIn = false;
 
   @override
   void initState() {
@@ -1528,37 +2317,25 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 18),
                         FilledButton.icon(
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              final result =
-                                  widget.onLogin(_phone.text, _password.text);
-                              if (!result.success) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(result.error ??
-                                        'Invalid mobile number or password.'),
+                          onPressed: _isLoggingIn ? null : _login,
+                          icon: _isLoggingIn
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
                                   ),
-                                );
-                              }
-                            }
-                          },
-                          icon: const Icon(Icons.login),
-                          label: Text(tr(context, 'Login')),
+                                )
+                              : const Icon(Icons.login),
+                          label: Text(
+                            tr(context,
+                                _isLoggingIn ? 'Signing in...' : 'Login'),
+                          ),
                         ),
                         const SizedBox(height: 10),
                         OutlinedButton.icon(
-                          onPressed: () {
-                            final result =
-                                widget.onLogin(_phone.text, _password.text);
-                            if (!result.success) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(result.error ??
-                                      'Invalid mobile number or password.'),
-                                ),
-                              );
-                            }
-                          },
+                          onPressed: _isLoggingIn ? null : _login,
                           icon: const Icon(Icons.fingerprint),
                           label: Text(tr(context, 'Biometric Login')),
                         ),
@@ -1573,6 +2350,23 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+
+  Future<void> _login() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _isLoggingIn = true);
+    final result = await widget.onLogin(_phone.text, _password.text);
+    if (!mounted) return;
+    setState(() => _isLoggingIn = false);
+    if (!result.success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            result.error ?? 'Invalid mobile number or password.',
+          ),
+        ),
+      );
+    }
+  }
 }
 
 class PasswordResetScreen extends StatefulWidget {
@@ -1583,7 +2377,7 @@ class PasswordResetScreen extends StatefulWidget {
   });
 
   final ShopWorker worker;
-  final ValueChanged<String> onPasswordChanged;
+  final Future<void> Function(String password) onPasswordChanged;
 
   @override
   State<PasswordResetScreen> createState() => _PasswordResetScreenState();
@@ -1593,6 +2387,7 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
   final _formKey = GlobalKey<FormState>();
   final _password = TextEditingController();
   final _confirm = TextEditingController();
+  bool _isSaving = false;
 
   @override
   void dispose() {
@@ -1665,11 +2460,10 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
                         ),
                         const SizedBox(height: 18),
                         FilledButton(
-                          onPressed: () {
-                            if (!_formKey.currentState!.validate()) return;
-                            widget.onPasswordChanged(_password.text.trim());
-                          },
-                          child: Text(tr(context, 'Continue')),
+                          onPressed: _isSaving ? null : _savePassword,
+                          child: Text(
+                            tr(context, _isSaving ? 'Saving...' : 'Continue'),
+                          ),
                         ),
                       ],
                     ),
@@ -1681,6 +2475,21 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _savePassword() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _isSaving = true);
+    try {
+      await widget.onPasswordChanged(_password.text.trim());
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error.toString())),
+      );
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
   }
 }
 
@@ -1908,6 +2717,7 @@ class HomeShell extends StatelessWidget {
     required this.orders,
     required this.templates,
     required this.workers,
+    required this.cloudSyncError,
     required this.onTabChanged,
     required this.onShopSettingsChanged,
     required this.onLogout,
@@ -1928,6 +2738,7 @@ class HomeShell extends StatelessWidget {
   final List<TailorOrder> orders;
   final List<GarmentTemplate> templates;
   final List<ShopWorker> workers;
+  final String? cloudSyncError;
   final ValueChanged<int> onTabChanged;
   final ValueChanged<bool> onShopSettingsChanged;
   final VoidCallback onLogout;
@@ -1970,11 +2781,21 @@ class HomeShell extends StatelessWidget {
     final title = titles[currentTab];
     final backgroundColor = _sessionBackground(worker);
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: backgroundColor.withValues(alpha: 0.36),
       appBar: AppBar(
         title: Text(tr(context, title)),
-        backgroundColor: backgroundColor,
+        backgroundColor: backgroundColor.withValues(alpha: 0.74),
         actions: [
+          if (isOwner && cloudSyncError != null)
+            IconButton(
+              tooltip: cloudSyncError,
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(cloudSyncError!)),
+                );
+              },
+              icon: const Icon(Icons.cloud_off_outlined),
+            ),
           if (!isOwner || (currentTab == 4 && showShopSettings))
             const _LanguageSwitcher(),
           if (isOwner) ...[
@@ -2219,10 +3040,10 @@ class HomeShell extends StatelessWidget {
 
   Color _sessionBackground(ShopWorker? worker) {
     if (worker == null) return _surface;
-    if (worker.roles.contains('manager')) return const Color(0xFFEAF4FF);
-    if (worker.roles.contains('accountant')) return const Color(0xFFEAF8EF);
-    if (worker.roles.contains('cutter')) return const Color(0xFFFFF6E1);
-    return const Color(0xFFFFF0E8);
+    if (worker.roles.contains('manager')) return const Color(0xFFE6F0FF);
+    if (worker.roles.contains('accountant')) return const Color(0xFFEDF4FF);
+    if (worker.roles.contains('cutter')) return const Color(0xFFDCEAFF);
+    return const Color(0xFFE8F1FF);
   }
 
   Future<void> _openOrder(BuildContext context, {TailorOrder? order}) async {
@@ -2299,9 +3120,9 @@ class _LanguageSwitcher extends StatelessWidget {
             padding: const EdgeInsets.all(4),
             alignment: isRight ? Alignment.centerRight : Alignment.centerLeft,
             decoration: BoxDecoration(
-              color: const Color(0xFFDCE8EC),
+              color: const Color(0xFFDCE9FF),
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: const Color(0xFFC8D6DB)),
+              border: Border.all(color: const Color(0xFFB8CEF5)),
             ),
             child: Stack(
               alignment: Alignment.center,
@@ -2315,7 +3136,7 @@ class _LanguageSwitcher extends StatelessWidget {
                       label,
                       maxLines: 1,
                       style: const TextStyle(
-                        color: Color(0xFF405866),
+                        color: Color(0xFF355A96),
                         fontSize: 11,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 0,
@@ -2330,7 +3151,7 @@ class _LanguageSwitcher extends StatelessWidget {
                     width: 26,
                     height: 26,
                     decoration: const BoxDecoration(
-                      color: Color(0xFF4CAF50),
+                      color: _brand,
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -2376,11 +3197,10 @@ class DashboardTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final pending = orders.where((order) => order.status != 'Delivered').length;
     final revenue = orders.fold<int>(0, (sum, order) => sum + order.amount);
-    final load = (pending / profile.maxOrdersPerDay).clamp(0.0, 1.0);
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _HeroPanel(profile: profile, load: load),
+        _HeroPanel(profile: profile),
         const SizedBox(height: 14),
         Row(
           children: [
@@ -2706,7 +3526,8 @@ class _WorkerAssignedTemplateCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = _templateStatusColors(task.item.status);
+    final unitStatus = task.item.statusForUnit(task.unitIndex);
+    final colors = _templateStatusColors(unitStatus);
     final measurementText = task.item.measurements.entries
         .map((entry) => '${entry.key}: ${entry.value}')
         .join(', ');
@@ -2770,7 +3591,7 @@ class _WorkerAssignedTemplateCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    tr(context, _shortStatus(task.item.status)),
+                    tr(context, _shortStatus(unitStatus)),
                     style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w900,
@@ -2793,7 +3614,8 @@ class _WorkerTaskDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isReady = task.item.status == 'Ready';
+    final unitStatus = task.item.statusForUnit(task.unitIndex);
+    final isReady = unitStatus == 'Ready';
     return AlertDialog(
       title: Text(task.item.templateName),
       content: Column(
@@ -2802,7 +3624,7 @@ class _WorkerTaskDialog extends StatelessWidget {
         children: [
           _AssignmentLine('Customer', task.order.customerName),
           _AssignmentLine('Due date', _formatDate(task.order.dueDate)),
-          _AssignmentLine('Status', tr(context, task.item.status)),
+          _AssignmentLine('Status', tr(context, unitStatus)),
           const SizedBox(height: 12),
           Text(
             tr(context, 'Measurements'),
@@ -2839,15 +3661,14 @@ class _WorkerTaskDialog extends StatelessWidget {
 }
 
 class _HeroPanel extends StatelessWidget {
-  const _HeroPanel({required this.profile, required this.load});
+  const _HeroPanel({required this.profile});
 
   final ShopProfile profile;
-  final double load;
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: _brandDark,
+      color: _brand,
       child: Padding(
         padding: const EdgeInsets.all(18),
         child: Column(
@@ -2859,25 +3680,6 @@ class _HeroPanel extends StatelessWidget {
                     color: Colors.white,
                     fontWeight: FontWeight.w800,
                   ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              tr(context,
-                  'Shop floor is at 90% load. Delivery might be tight.'),
-              style: const TextStyle(color: Color(0xFFFFEAD2)),
-            ),
-            const SizedBox(height: 16),
-            LinearProgressIndicator(
-              value: load,
-              minHeight: 8,
-              borderRadius: BorderRadius.circular(8),
-              color: _accent,
-              backgroundColor: Colors.white24,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '${(load * 100).round()}% ${tr(context, 'of daily capacity used')}',
-              style: const TextStyle(color: Colors.white70),
             ),
           ],
         ),
@@ -3012,6 +3814,7 @@ List<_ShopOrderEntry> _shopOrderEntriesFor(List<TailorOrder> orders) {
               itemIndex: itemIndex,
               unitIndex: unitIndex,
               assignedWorkerMobile: item.assignedWorkerByUnit[unitIndex],
+              status: item.statusForUnit(unitIndex),
             ),
           ),
         );
@@ -3060,6 +3863,7 @@ class _OrderTemplateCardData {
     required this.itemIndex,
     required this.unitIndex,
     required this.assignedWorkerMobile,
+    required this.status,
   });
 
   final TailorOrder order;
@@ -3067,6 +3871,7 @@ class _OrderTemplateCardData {
   final int itemIndex;
   final int unitIndex;
   final String? assignedWorkerMobile;
+  final String status;
 }
 
 class _ReadyToDeliverOrderCard extends StatelessWidget {
@@ -3174,7 +3979,7 @@ class _OrderTemplateWorkCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = _templateStatusColors(data.item.status);
+    final colors = _templateStatusColors(data.status);
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: DecoratedBox(
@@ -3286,7 +4091,7 @@ class _TemplateAssignmentDialogState extends State<_TemplateAssignmentDialog> {
         (widget.workers.isEmpty ? null : widget.workers.first.mobile);
     _status = widget.data.assignedWorkerMobile == null
         ? 'In Stitching'
-        : widget.data.item.status;
+        : widget.data.status;
     if (!['In Stitching', 'Ready', 'Hold'].contains(_status)) {
       _status = 'In Stitching';
     }
@@ -3295,6 +4100,10 @@ class _TemplateAssignmentDialogState extends State<_TemplateAssignmentDialog> {
   @override
   Widget build(BuildContext context) {
     final item = widget.data.item;
+    final canAssign = canAssignOrderUnit(
+      currentStatus: widget.data.status,
+      assignedWorkerMobile: widget.data.assignedWorkerMobile,
+    );
     return AlertDialog(
       title: Text('${item.templateName} ${tr(context, 'Assignment')}'),
       content: SingleChildScrollView(
@@ -3306,7 +4115,7 @@ class _TemplateAssignmentDialogState extends State<_TemplateAssignmentDialog> {
             _AssignmentLine(
                 'Order date', _formatDate(widget.data.order.orderDate)),
             _AssignmentLine('Due date', _formatDate(widget.data.order.dueDate)),
-            _AssignmentLine('Status', tr(context, item.status)),
+            _AssignmentLine('Status', tr(context, widget.data.status)),
             if (widget.assignedWorkerName != null)
               _AssignmentLine('Assigned', widget.assignedWorkerName!),
             const SizedBox(height: 12),
@@ -3335,6 +4144,14 @@ class _TemplateAssignmentDialogState extends State<_TemplateAssignmentDialog> {
             if (widget.workers.isEmpty)
               Text(
                   tr(context, 'Create a worker in Shop before assigning work.'))
+            else if (!canAssign)
+              Text(
+                tr(
+                  context,
+                  'A new worker can only be assigned while status is Measurements.',
+                ),
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              )
             else
               DropdownButtonFormField<String>(
                 initialValue: _workerMobile,
@@ -3382,7 +4199,7 @@ class _TemplateAssignmentDialogState extends State<_TemplateAssignmentDialog> {
           child: Text(tr(context, 'Cancel')),
         ),
         FilledButton(
-          onPressed: _workerMobile == null ? null : _assign,
+          onPressed: _workerMobile == null || !canAssign ? null : _assign,
           child: Text(
             tr(context,
                 widget.data.assignedWorkerMobile == null ? 'Assign' : 'Save'),
@@ -3879,6 +4696,7 @@ class _OrderDetailsDialogState extends State<OrderDetailsDialog> {
           measurementUpdatedAt: item.measurementUpdatedAt,
           measurements: Map.of(item.measurements),
           assignedWorkerByUnit: Map.of(item.assignedWorkerByUnit),
+          unitStatusByUnit: Map.of(item.unitStatusByUnit),
           workerPaymentStatusByUnit: Map.of(item.workerPaymentStatusByUnit),
         ),
     ];
@@ -3901,9 +4719,16 @@ class _OrderDetailsDialogState extends State<OrderDetailsDialog> {
 
   int get _balance => (_total - _paid.clamp(0, _total)).toInt();
 
-  bool get _allTemplatesReady => _items.every((item) => item.status == 'Ready');
+  bool get _allTemplatesReady => _items.every((item) => item.allUnitsReady);
 
-  bool get _canDeliver => _allTemplatesReady && _balance == 0;
+  DeliveryOutcome get _deliveryOutcome => deliveryOutcome(
+        allTemplatesReady: _allTemplatesReady,
+        balance: _balance,
+        promiseNote: _promiseNote.text,
+        promiseDate: _promiseDate,
+      );
+
+  bool get _canCompleteDelivery => _deliveryOutcome != DeliveryOutcome.blocked;
 
   bool get _hasPromiseNote => _promiseNote.text.trim().isNotEmpty;
 
@@ -4108,41 +4933,23 @@ class _OrderDetailsDialogState extends State<OrderDetailsDialog> {
                 child: SizedBox(
                   width: 176,
                   height: 40,
-                  child: DropdownButtonFormField<String>(
-                    initialValue: _status,
-                    isDense: true,
-                    isExpanded: true,
+                  child: InputDecorator(
                     decoration: _compactDecoration(context, 'Status'),
-                    style: const TextStyle(fontSize: 12, color: _ink),
-                    items: [
-                      DropdownMenuItem(
-                          value: 'Measurements',
-                          child: Text(tr(context, 'Measurements'))),
-                      DropdownMenuItem(
-                          value: 'In Stitching',
-                          child: Text(tr(context, 'In Stitching'))),
-                      DropdownMenuItem(
-                          value: 'Ready', child: Text(tr(context, 'Ready'))),
-                      DropdownMenuItem(
-                          value: 'Delivered',
-                          child: Text(tr(context, 'Delivered'))),
-                      const DropdownMenuItem(value: 'DWP', child: Text('DWP')),
-                    ],
-                    onChanged: _isReadOnly
-                        ? null
-                        : (value) {
-                            if (value == null) return;
-                            if (value == 'Delivered' && !_canDeliver) return;
-                            setState(() => _status = value);
-                          },
+                    child: Text(
+                      tr(context, _status),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
                 ),
               ),
-              if (!_isReadOnly && !_canDeliver) ...[
+              if (!_isReadOnly && !_canCompleteDelivery) ...[
                 const SizedBox(height: 4),
                 Text(
                   tr(context,
-                      'Deliver when templates are Ready and balance is Rs 0, or add a promise note for DWP.'),
+                      'Deliver when all templates are Ready and balance is Rs 0, or add a promise note and promise date for DWP.'),
                   style: const TextStyle(fontSize: 10, color: Colors.black54),
                 ),
               ],
@@ -4157,16 +4964,13 @@ class _OrderDetailsDialogState extends State<OrderDetailsDialog> {
                   children: [
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: (_canDeliver || _hasPromiseNote)
-                            ? () {
-                                setState(() {
-                                  _status =
-                                      _hasPromiseNote ? 'DWP' : 'Delivered';
-                                });
-                                _save(usePromiseNote: _hasPromiseNote);
-                              }
-                            : null,
-                        child: Text(tr(context, 'Delivered')),
+                        onPressed:
+                            _canCompleteDelivery ? _completeDelivery : null,
+                        child: Text(
+                          _deliveryOutcome == DeliveryOutcome.dwp
+                              ? 'DWP'
+                              : tr(context, 'Delivered'),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 6),
@@ -4263,6 +5067,16 @@ class _OrderDetailsDialogState extends State<OrderDetailsDialog> {
         items: _items,
       ),
     );
+  }
+
+  void _completeDelivery() {
+    final outcome = _deliveryOutcome;
+    if (outcome == DeliveryOutcome.blocked) return;
+    final usePromiseNote = outcome == DeliveryOutcome.dwp;
+    setState(() {
+      _status = usePromiseNote ? 'DWP' : 'Delivered';
+    });
+    _save(usePromiseNote: usePromiseNote);
   }
 
   List<OrderPayment> get _visiblePayments {
@@ -4431,7 +5245,7 @@ class _OrderTemplatesTable extends StatelessWidget {
             id: '$orderId-$serial',
             templateName: item.templateName,
             rate: item.rate,
-            status: item.status,
+            status: item.statusForUnit(unit),
           ),
         );
         serial++;
@@ -4728,6 +5542,8 @@ class _ProfileTabState extends State<ProfileTab> {
           ? [
               _ShopSettingsHeader(profile: widget.profile),
               const SizedBox(height: 16),
+              const _WhatsAppTemplatesSettingsCard(),
+              const SizedBox(height: 16),
               _TemplatesTableCard(
                 templates: widget.templates,
                 onSave: widget.onTemplateSaved,
@@ -4771,6 +5587,322 @@ class _ProfileTabState extends State<ProfileTab> {
     );
     if (amount == null) return;
     widget.onWorkerPaymentRecorded(worker: worker, amount: amount);
+  }
+}
+
+class _WhatsAppTemplatesSettingsCard extends StatelessWidget {
+  const _WhatsAppTemplatesSettingsCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: ListTile(
+        leading: const CircleAvatar(
+          backgroundColor: Color(0xFF25D366),
+          foregroundColor: Colors.white,
+          child: Icon(Icons.chat_outlined),
+        ),
+        title: Text(
+          tr(context, 'WhatsApp Templates'),
+          style: const TextStyle(fontWeight: FontWeight.w900),
+        ),
+        subtitle: Text(
+          tr(
+            context,
+            'Edit mandatory order confirmation and pickup-ready messages.',
+          ),
+        ),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => Navigator.of(context).push<void>(
+          MaterialPageRoute(
+            builder: (_) => const WhatsAppTemplatesScreen(),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class WhatsAppTemplatesScreen extends StatefulWidget {
+  const WhatsAppTemplatesScreen({super.key});
+
+  @override
+  State<WhatsAppTemplatesScreen> createState() =>
+      _WhatsAppTemplatesScreenState();
+}
+
+class _WhatsAppTemplatesScreenState extends State<WhatsAppTemplatesScreen> {
+  static const _orderReceivedStorageKey = 'whatsapp_order_received_template';
+  static const _orderReadyStorageKey = 'whatsapp_order_ready_template';
+
+  final _formKey = GlobalKey<FormState>();
+  final _orderReceived = TextEditingController();
+  final _orderReady = TextEditingController();
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  bool _isLoading = true;
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTemplates();
+  }
+
+  @override
+  void dispose() {
+    _orderReceived.dispose();
+    _orderReady.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(tr(context, 'WhatsApp Templates')),
+      ),
+      body: SafeArea(
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : Form(
+                key: _formKey,
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    Card(
+                      color: const Color(0xFFEAF3FF),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Icon(
+                              Icons.info_outline,
+                              color: _brandDark,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                tr(
+                                  context,
+                                  'Both templates are mandatory. Keep every required placeholder so customer and order values can be inserted before sending to WhatsApp.',
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    _WhatsAppTemplateEditor(
+                      title: 'Order confirmation',
+                      description:
+                          'Sent after a customer places a stitching order.',
+                      controller: _orderReceived,
+                      requiredPlaceholders: const ['{{1}}', '{{2}}'],
+                      placeholderGuide: const [
+                        '{{1}} Customer name',
+                        '{{2}} Expected delivery date',
+                      ],
+                      previewReplacements: const {
+                        '{{1}}': 'Aarav',
+                        '{{2}}': '20 Jun 2026',
+                      },
+                    ),
+                    const SizedBox(height: 18),
+                    _WhatsAppTemplateEditor(
+                      title: 'Ready for pickup',
+                      description:
+                          'Sent when every ordered template is ready for pickup.',
+                      controller: _orderReady,
+                      requiredPlaceholders: const [
+                        '{{1}}',
+                        '{{2}}',
+                        '{{3}}',
+                        '{{4}}',
+                      ],
+                      placeholderGuide: const [
+                        '{{1}} Customer name',
+                        '{{2}} Total bill amount',
+                        '{{3}} Paid amount',
+                        '{{4}} Balance due',
+                      ],
+                      previewReplacements: const {
+                        '{{1}}': 'Aarav',
+                        '{{2}}': '2300',
+                        '{{3}}': '800',
+                        '{{4}}': '1500',
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    FilledButton.icon(
+                      onPressed: _isSaving ? null : _saveTemplates,
+                      icon: _isSaving
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Icon(Icons.save_outlined),
+                      label: Text(
+                        tr(
+                          context,
+                          _isSaving ? 'Saving...' : 'Save WhatsApp Templates',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    OutlinedButton.icon(
+                      onPressed: _isSaving ? null : _restoreDefaults,
+                      icon: const Icon(Icons.restart_alt),
+                      label: Text(tr(context, 'Restore sample templates')),
+                    ),
+                  ],
+                ),
+              ),
+      ),
+    );
+  }
+
+  Future<void> _loadTemplates() async {
+    final values = await Future.wait([
+      _readSecureValue(_storage, _orderReceivedStorageKey),
+      _readSecureValue(_storage, _orderReadyStorageKey),
+    ]);
+    if (!mounted) return;
+    _orderReceived.text = values[0] ?? defaultOrderReceivedWhatsAppTemplate;
+    _orderReady.text = values[1] ?? defaultOrderReadyWhatsAppTemplate;
+    setState(() => _isLoading = false);
+  }
+
+  Future<void> _saveTemplates() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _isSaving = true);
+    await Future.wait([
+      _storage.write(
+        key: _orderReceivedStorageKey,
+        value: _orderReceived.text.trim(),
+      ),
+      _storage.write(
+        key: _orderReadyStorageKey,
+        value: _orderReady.text.trim(),
+      ),
+    ]);
+    if (!mounted) return;
+    setState(() => _isSaving = false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(tr(context, 'WhatsApp templates saved.'))),
+    );
+  }
+
+  void _restoreDefaults() {
+    setState(() {
+      _orderReceived.text = defaultOrderReceivedWhatsAppTemplate;
+      _orderReady.text = defaultOrderReadyWhatsAppTemplate;
+    });
+    _formKey.currentState?.validate();
+  }
+}
+
+class _WhatsAppTemplateEditor extends StatelessWidget {
+  const _WhatsAppTemplateEditor({
+    required this.title,
+    required this.description,
+    required this.controller,
+    required this.requiredPlaceholders,
+    required this.placeholderGuide,
+    required this.previewReplacements,
+  });
+
+  final String title;
+  final String description;
+  final TextEditingController controller;
+  final List<String> requiredPlaceholders;
+  final List<String> placeholderGuide;
+  final Map<String, String> previewReplacements;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              tr(context, title),
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 4),
+            Text(tr(context, description)),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: controller,
+              minLines: 7,
+              maxLines: 14,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: InputDecoration(
+                labelText: tr(context, 'Message template'),
+                alignLabelWithHint: true,
+              ),
+              validator: (value) => validateWhatsAppTemplate(
+                value ?? '',
+                requiredPlaceholders: requiredPlaceholders,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final placeholder in placeholderGuide)
+                  Chip(
+                    avatar: const Icon(Icons.data_object, size: 16),
+                    label: Text(placeholder),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            ExpansionTile(
+              tilePadding: EdgeInsets.zero,
+              childrenPadding: EdgeInsets.zero,
+              title: Text(
+                tr(context, 'Preview with sample values'),
+                style: const TextStyle(fontWeight: FontWeight.w800),
+              ),
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE9FBEF),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFA8DEB8)),
+                    ),
+                    child: ValueListenableBuilder<TextEditingValue>(
+                      valueListenable: controller,
+                      builder: (context, value, _) {
+                        return Text(
+                          renderWhatsAppTemplate(
+                            value.text,
+                            previewReplacements,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -5646,9 +6778,8 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
   String? _selectedCustomerPhone;
   late List<TailorCustomer> _customers;
   late List<OrderTemplateItem> _items;
-  late DateTime _dueDate;
+  DateTime? _dueDate;
   String _payment = 'UPI';
-  String _status = 'Measurements';
   bool _priority = false;
 
   @override
@@ -5673,6 +6804,7 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
             measurementUpdatedAt: item.measurementUpdatedAt,
             measurements: Map.of(item.measurements),
             assignedWorkerByUnit: Map.of(item.assignedWorkerByUnit),
+            unitStatusByUnit: Map.of(item.unitStatusByUnit),
             workerPaymentStatusByUnit: Map.of(item.workerPaymentStatusByUnit),
           ),
       ];
@@ -5681,7 +6813,6 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
       _weightKg.text = order.weightKg.toString();
       _dueDate = order.dueDate;
       _payment = order.paymentMode;
-      _status = order.status;
       _priority = order.priority;
     } else {
       _selectedCustomerPhone = null;
@@ -5772,6 +6903,7 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
                           setState(() {
                             _selectedCustomerPhone = null;
                             _customerSearch.clear();
+                            _weightKg.text = '0';
                             _items = [];
                           });
                         },
@@ -5846,7 +6978,11 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
                   labelText: tr(context, 'Order Due Date'),
                   prefixIcon: const Icon(Icons.event_outlined),
                 ),
-                child: Text(_formatDate(_dueDate)),
+                child: Text(
+                  _dueDate == null
+                      ? tr(context, 'Select delivery date')
+                      : _formatDate(_dueDate!),
+                ),
               ),
             ),
             const SizedBox(height: 10),
@@ -6014,25 +7150,6 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
               ],
               onChanged: (value) => setState(() => _payment = value ?? 'UPI'),
             ),
-            const SizedBox(height: 10),
-            DropdownButtonFormField<String>(
-              initialValue: _status,
-              decoration: InputDecoration(labelText: tr(context, 'Status')),
-              items: [
-                DropdownMenuItem(
-                    value: 'Measurements',
-                    child: Text(tr(context, 'Measurements'))),
-                DropdownMenuItem(
-                    value: 'In Stitching',
-                    child: Text(tr(context, 'In Stitching'))),
-                DropdownMenuItem(
-                    value: 'Ready', child: Text(tr(context, 'Ready'))),
-                DropdownMenuItem(
-                    value: 'Delivered', child: Text(tr(context, 'Delivered'))),
-              ],
-              onChanged: (value) =>
-                  setState(() => _status = value ?? 'Measurements'),
-            ),
             const SizedBox(height: 20),
             FilledButton.icon(
               onPressed: _save,
@@ -6052,6 +7169,8 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
     setState(() {
       _selectedCustomerPhone = customer.phone;
       _customerSearch.text = '${customer.name} - ${customer.phone}';
+      _weightKg.text =
+          customer.weightKg == 0 ? '0' : customer.weightKg.toString();
       _items = [];
     });
   }
@@ -6073,6 +7192,7 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
       }
       _selectedCustomerPhone = result.phone;
       _customerSearch.text = '${result.name} - ${result.phone}';
+      _weightKg.text = result.weightKg == 0 ? '0' : result.weightKg.toString();
       _items = [];
     });
   }
@@ -6080,7 +7200,7 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
   Future<void> _pickDueDate() async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: _dueDate,
+      initialDate: _dueDate ?? DateTime.now().add(const Duration(days: 7)),
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
@@ -6111,22 +7231,33 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
 
   Future<void> _save() async {
     final customer = _selectedCustomer;
-    if (customer == null || _items.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(tr(context, 'Select a customer and add a template.')),
-        ),
-      );
+    final validation = validateOrderCreation(
+      hasCustomer: customer != null,
+      templatesHaveMeasurements: [
+        for (final item in _items) item.measurements.isNotEmpty,
+      ],
+      deliveryDate: _dueDate,
+    );
+    if (validation != OrderCreationValidation.valid) {
+      _showOrderValidation(validation);
       return;
     }
+    final selectedCustomer = customer!;
+    final dueDate = _dueDate!;
+    final weightKg = double.tryParse(_weightKg.text.trim()) ?? 0;
+    final updatedCustomer = selectedCustomer.copyWith(
+      weightKg: weightKg,
+      measurementsByTemplate: Map.of(selectedCustomer.measurementsByTemplate),
+    );
+    widget.onCustomerSaved(updatedCustomer);
     final order = TailorOrder(
       id: widget.existing?.id ??
           'ORD-${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}',
-      customerName: customer.name,
+      customerName: selectedCustomer.name,
       items: _items,
       orderDate: widget.existing?.orderDate ?? DateTime.now(),
-      dueDate: _dueDate,
-      status: _status,
+      dueDate: dueDate,
+      status: widget.existing?.status ?? _orderWorkStatus(_items),
       paymentMode: _payment,
       advancePayment: _paidAmount.clamp(0, _total).toInt(),
       payments: widget.existing != null
@@ -6140,7 +7271,7 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
                   ),
                 ]
               : [],
-      weightKg: double.tryParse(_weightKg.text.trim()) ?? 0,
+      weightKg: weightKg,
       tailor: 'Master Tailor',
       priority: _priority,
       notes: localizedInputText(context, _notes.text).trim(),
@@ -6150,13 +7281,29 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
         context: context,
         builder: (_) => OrderReceiptDialog(
           profile: widget.profile,
-          customer: customer,
+          customer: updatedCustomer,
           order: order,
         ),
       );
       if (!mounted) return;
     }
     Navigator.of(context).pop(order);
+  }
+
+  void _showOrderValidation(OrderCreationValidation validation) {
+    final message = switch (validation) {
+      OrderCreationValidation.customerRequired =>
+        'Select a customer before creating the order.',
+      OrderCreationValidation.templateRequired =>
+        'Add at least one template to the order.',
+      OrderCreationValidation.measurementsRequired =>
+        'Every ordered template must include measurements.',
+      OrderCreationValidation.deliveryDateRequired => 'Select a delivery date.',
+      OrderCreationValidation.valid => '',
+    };
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(tr(context, message))),
+    );
   }
 }
 
@@ -7091,6 +8238,11 @@ class _SelectedCustomerCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  if (customer.weightKg > 0)
+                    Text(
+                      '${tr(context, 'Weight')}: ${customer.weightKg.toStringAsFixed(2)} kg',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                 ],
               ),
             ),
@@ -7151,7 +8303,6 @@ class OrderTemplateDialog extends StatefulWidget {
 class _OrderTemplateDialogState extends State<OrderTemplateDialog> {
   late GarmentTemplate _template;
   late int _quantity;
-  late String _templateStatus;
   late Map<String, String> _measurements;
   late DateTime _measurementUpdatedAt;
 
@@ -7166,7 +8317,6 @@ class _OrderTemplateDialogState extends State<OrderTemplateDialog> {
             orElse: () => widget.templates.first,
           );
     _quantity = existing?.quantity ?? 1;
-    _templateStatus = existing?.status ?? 'Measurements';
     _measurements = existing == null
         ? _measurementFor(_template)
         : Map.of(existing.measurements);
@@ -7238,26 +8388,6 @@ class _OrderTemplateDialogState extends State<OrderTemplateDialog> {
                   icon: const Icon(Icons.add),
                 ),
               ],
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              initialValue: _templateStatus,
-              decoration:
-                  InputDecoration(labelText: tr(context, 'Template Status')),
-              items: [
-                DropdownMenuItem(
-                    value: 'Measurements',
-                    child: Text(tr(context, 'Measurements'))),
-                DropdownMenuItem(
-                    value: 'In Stitching',
-                    child: Text(tr(context, 'In Stitching'))),
-                DropdownMenuItem(
-                    value: 'Ready', child: Text(tr(context, 'Ready'))),
-              ],
-              onChanged: (value) {
-                if (value == null) return;
-                setState(() => _templateStatus = value);
-              },
             ),
             const SizedBox(height: 12),
             Card(
@@ -7340,13 +8470,18 @@ class _OrderTemplateDialogState extends State<OrderTemplateDialog> {
       OrderTemplateItem(
         templateName: _template.name,
         quantity: _quantity,
-        status: _templateStatus,
+        status: widget.existing?.status ?? 'Measurements',
         charges: _template.charges,
         makerCharges: _template.makerCharges,
         measurementUpdatedAt: _measurementUpdatedAt,
         measurements: Map.of(_measurements),
         assignedWorkerByUnit: {
           for (final entry in widget.existing?.assignedWorkerByUnit.entries ??
+              const Iterable<MapEntry<int, String>>.empty())
+            if (entry.key < _quantity) entry.key: entry.value,
+        },
+        unitStatusByUnit: {
+          for (final entry in widget.existing?.unitStatusByUnit.entries ??
               const Iterable<MapEntry<int, String>>.empty())
             if (entry.key < _quantity) entry.key: entry.value,
         },
@@ -7452,28 +8587,49 @@ class CustomerDialog extends StatefulWidget {
   State<CustomerDialog> createState() => _CustomerDialogState();
 }
 
-class _CustomerDialogState extends State<CustomerDialog> {
+class _CustomerDialogState extends State<CustomerDialog>
+    with WidgetsBindingObserver {
   final _name = TextEditingController();
   final _phone = TextEditingController();
   final _address = TextEditingController();
+  Timer? _contactSearchDebounce;
+  List<PhoneContactMatch> _contactMatches = const [];
+  PhoneContactAccessStatus _contactAccessStatus =
+      PhoneContactAccessStatus.denied;
+  bool _isLookingUpContact = false;
+  bool _hasSearchedContacts = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     final customer = widget.customer;
     if (customer != null) {
       _name.text = customer.name;
       _phone.text = customer.phone;
       _address.text = customer.address;
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _refreshContactPermission();
+      });
     }
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _contactSearchDebounce?.cancel();
     _name.dispose();
     _phone.dispose();
     _address.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && widget.customer == null) {
+      _refreshContactPermission();
+    }
   }
 
   @override
@@ -7488,17 +8644,46 @@ class _CustomerDialogState extends State<CustomerDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
+              controller: _phone,
+              keyboardType: TextInputType.phone,
+              textInputAction: TextInputAction.search,
+              onChanged:
+                  widget.customer == null ? _scheduleContactSearch : null,
+              onSubmitted: widget.customer == null
+                  ? (_) => _searchPhoneContacts()
+                  : null,
+              decoration: InputDecoration(
+                labelText: tr(context, 'Mobile Number'),
+                helperText: widget.customer == null
+                    ? tr(context, 'Type at least 3 digits to search contacts')
+                    : null,
+                suffixIcon: widget.customer == null
+                    ? IconButton(
+                        tooltip: tr(context, 'Find in phone contacts'),
+                        onPressed:
+                            _isLookingUpContact ? null : _searchPhoneContacts,
+                        icon: _isLookingUpContact
+                            ? const Padding(
+                                padding: EdgeInsets.all(12),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(Icons.contact_phone_outlined),
+                      )
+                    : null,
+              ),
+            ),
+            if (widget.customer == null) ...[
+              const SizedBox(height: 8),
+              _buildContactSearchResults(),
+            ],
+            const SizedBox(height: 10),
+            TextField(
               controller: _name,
               inputFormatters: localizedTextInputFormatters(context),
               decoration:
                   InputDecoration(labelText: tr(context, 'Customer Name')),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: _phone,
-              keyboardType: TextInputType.phone,
-              decoration:
-                  InputDecoration(labelText: tr(context, 'Mobile Number')),
             ),
             const SizedBox(height: 10),
             TextField(
@@ -7521,6 +8706,159 @@ class _CustomerDialogState extends State<CustomerDialog> {
     );
   }
 
+  Widget _buildContactSearchResults() {
+    if (_contactAccessStatus == PhoneContactAccessStatus.unsupported) {
+      return const SizedBox.shrink();
+    }
+    if (_contactAccessStatus == PhoneContactAccessStatus.denied ||
+        _contactAccessStatus == PhoneContactAccessStatus.permanentlyDenied) {
+      return Card(
+        margin: EdgeInsets.zero,
+        child: ListTile(
+          dense: true,
+          leading: const Icon(Icons.contacts_outlined),
+          title: Text(tr(context, 'Contacts access is required')),
+          subtitle: Text(
+            tr(
+              context,
+              'Allow access to search saved phone contacts.',
+            ),
+          ),
+          trailing: TextButton(
+            onPressed: _contactAccessStatus ==
+                    PhoneContactAccessStatus.permanentlyDenied
+                ? _openContactSettings
+                : _requestContactPermission,
+            child: Text(
+              tr(
+                context,
+                _contactAccessStatus ==
+                        PhoneContactAccessStatus.permanentlyDenied
+                    ? 'Settings'
+                    : 'Allow',
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+    if (_contactAccessStatus == PhoneContactAccessStatus.failed) {
+      return Text(
+        tr(context, 'Could not read phone contacts.'),
+        style: TextStyle(color: Theme.of(context).colorScheme.error),
+      );
+    }
+    if (_isLookingUpContact) {
+      return const LinearProgressIndicator();
+    }
+    if (_contactMatches.isEmpty) {
+      if (!_hasSearchedContacts ||
+          normalizePhoneNumber(_phone.text).length < 3) {
+        return const SizedBox.shrink();
+      }
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: Text(tr(context, 'No matching contacts found.')),
+      );
+    }
+
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxHeight: 220),
+      child: ListView.separated(
+        shrinkWrap: true,
+        itemCount: _contactMatches.length,
+        separatorBuilder: (_, __) => const Divider(height: 1),
+        itemBuilder: (context, index) {
+          final contact = _contactMatches[index];
+          return ListTile(
+            dense: true,
+            contentPadding: EdgeInsets.zero,
+            leading: const CircleAvatar(
+              child: Icon(Icons.person_outline),
+            ),
+            title: Text(
+              contact.name.isEmpty
+                  ? tr(context, 'Unnamed contact')
+                  : contact.name,
+            ),
+            subtitle: Text(
+              contact.address.isEmpty
+                  ? contact.phone
+                  : '${contact.phone}\n${contact.address}',
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            onTap: () => _addContactAsCustomer(contact),
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _refreshContactPermission() async {
+    final status = await _phoneContactLookup.checkPermission();
+    if (!mounted) return;
+    setState(() => _contactAccessStatus = status);
+  }
+
+  void _scheduleContactSearch(String _) {
+    _contactSearchDebounce?.cancel();
+    setState(() {
+      _contactMatches = const [];
+      _hasSearchedContacts = false;
+    });
+    if (normalizePhoneNumber(_phone.text).length < 3) return;
+    _contactSearchDebounce = Timer(
+      const Duration(milliseconds: 350),
+      _searchPhoneContacts,
+    );
+  }
+
+  Future<void> _searchPhoneContacts() async {
+    _contactSearchDebounce?.cancel();
+    if (normalizePhoneNumber(_phone.text).length < 3) {
+      setState(() {
+        _contactMatches = const [];
+        _hasSearchedContacts = false;
+      });
+      return;
+    }
+
+    setState(() => _isLookingUpContact = true);
+    final result = await _phoneContactLookup.searchByPhone(_phone.text);
+    if (!mounted) return;
+    setState(() {
+      _isLookingUpContact = false;
+      _hasSearchedContacts = true;
+      _contactAccessStatus = result.status;
+      _contactMatches = result.matches;
+    });
+  }
+
+  Future<void> _requestContactPermission() async {
+    final status = await _phoneContactLookup.requestPermission();
+    if (!mounted) return;
+    setState(() => _contactAccessStatus = status);
+    if (status == PhoneContactAccessStatus.granted &&
+        normalizePhoneNumber(_phone.text).length >= 3) {
+      await _searchPhoneContacts();
+    }
+  }
+
+  Future<void> _openContactSettings() async {
+    await _phoneContactLookup.openSettings();
+  }
+
+  void _addContactAsCustomer(PhoneContactMatch contact) {
+    Navigator.of(context).pop(
+      TailorCustomer(
+        name: contact.name.isEmpty ? 'Customer' : contact.name,
+        phone: contact.phone,
+        address: contact.address,
+      ),
+    );
+  }
+
   void _save() {
     Navigator.of(context).pop(
       TailorCustomer(
@@ -7531,6 +8869,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
             ? DateTime.now().millisecondsSinceEpoch.toString()
             : _phone.text.trim(),
         address: localizedInputText(context, _address.text).trim(),
+        weightKg: widget.customer?.weightKg ?? 0,
         measurementsByTemplate:
             Map.of(widget.customer?.measurementsByTemplate ?? {}),
       ),
@@ -8010,24 +9349,28 @@ class TailorCustomer {
     required this.name,
     required this.phone,
     required this.address,
+    this.weightKg = 0,
     Map<String, TemplateMeasurement>? measurementsByTemplate,
   }) : measurementsByTemplate = measurementsByTemplate ?? {};
 
   final String name;
   final String phone;
   final String address;
+  final double weightKg;
   final Map<String, TemplateMeasurement> measurementsByTemplate;
 
   TailorCustomer copyWith({
     String? name,
     String? phone,
     String? address,
+    double? weightKg,
     Map<String, TemplateMeasurement>? measurementsByTemplate,
   }) {
     return TailorCustomer(
       name: name ?? this.name,
       phone: phone ?? this.phone,
       address: address ?? this.address,
+      weightKg: weightKg ?? this.weightKg,
       measurementsByTemplate:
           measurementsByTemplate ?? Map.of(this.measurementsByTemplate),
     );
@@ -8069,7 +9412,7 @@ class TailorOrder {
 
   int get balanceAmount => (amount - advancePayment).clamp(0, amount).toInt();
 
-  bool get allTemplatesReady => items.every((item) => item.status == 'Ready');
+  bool get allTemplatesReady => items.every((item) => item.allUnitsReady);
 
   String get summary => items.map((item) => item.templateName).join(', ');
 
@@ -8140,8 +9483,10 @@ class OrderTemplateItem {
     required this.measurementUpdatedAt,
     required this.measurements,
     Map<int, String>? assignedWorkerByUnit,
+    Map<int, String>? unitStatusByUnit,
     Map<int, String>? workerPaymentStatusByUnit,
   })  : assignedWorkerByUnit = assignedWorkerByUnit ?? {},
+        unitStatusByUnit = unitStatusByUnit ?? {},
         workerPaymentStatusByUnit = workerPaymentStatusByUnit ?? {};
 
   final String templateName;
@@ -8152,15 +9497,38 @@ class OrderTemplateItem {
   final DateTime measurementUpdatedAt;
   final Map<String, String> measurements;
   final Map<int, String> assignedWorkerByUnit;
+  final Map<int, String> unitStatusByUnit;
   final Map<int, String> workerPaymentStatusByUnit;
 
   int get rate => charges + makerCharges;
 
   int get total => rate * quantity;
 
+  String statusForUnit(int unitIndex) => unitStatusByUnit[unitIndex] ?? status;
+
+  bool get allUnitsReady {
+    for (var unitIndex = 0; unitIndex < quantity; unitIndex++) {
+      if (statusForUnit(unitIndex) != 'Ready') return false;
+    }
+    return true;
+  }
+
+  String get aggregateStatus {
+    final statuses = <String>{
+      for (var unitIndex = 0; unitIndex < quantity; unitIndex++)
+        statusForUnit(unitIndex),
+    };
+    if (statuses.length == 1) return statuses.first;
+    if (statuses.contains('In Stitching')) return 'In Stitching';
+    if (statuses.contains('Hold')) return 'Hold';
+    if (statuses.contains('Measurements')) return 'Measurements';
+    return status;
+  }
+
   OrderTemplateItem copyWith({
     String? status,
     Map<int, String>? assignedWorkerByUnit,
+    Map<int, String>? unitStatusByUnit,
     Map<int, String>? workerPaymentStatusByUnit,
   }) {
     return OrderTemplateItem(
@@ -8173,6 +9541,7 @@ class OrderTemplateItem {
       measurements: Map.of(measurements),
       assignedWorkerByUnit:
           assignedWorkerByUnit ?? Map.of(this.assignedWorkerByUnit),
+      unitStatusByUnit: unitStatusByUnit ?? Map.of(this.unitStatusByUnit),
       workerPaymentStatusByUnit:
           workerPaymentStatusByUnit ?? Map.of(this.workerPaymentStatusByUnit),
     );

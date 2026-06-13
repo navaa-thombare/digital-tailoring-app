@@ -256,5 +256,50 @@ class DatabaseMigrations {
         'CREATE INDEX idx_login_sessions_user_id ON login_sessions(user_id)',
       ],
     ),
+    DatabaseMigration(
+      version: 3,
+      name: 'add_whatsapp_message_logs',
+      statements: [
+        '''
+        CREATE TABLE whatsapp_message_logs (
+          id TEXT PRIMARY KEY,
+          event_key TEXT NOT NULL UNIQUE,
+          order_id TEXT NOT NULL,
+          customer_name TEXT NOT NULL,
+          phone TEXT NOT NULL,
+          message_type TEXT NOT NULL
+            CHECK (message_type IN ('order', 'delivery', 'reminder')),
+          status TEXT NOT NULL
+            CHECK (status IN ('success', 'failure', 'hold')),
+          message_template TEXT NOT NULL,
+          rendered_message TEXT NOT NULL,
+          provider_message_id TEXT,
+          error_message TEXT,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        )
+        ''',
+        'CREATE INDEX idx_whatsapp_message_logs_created_at '
+            'ON whatsapp_message_logs(created_at DESC)',
+        'CREATE INDEX idx_whatsapp_message_logs_order_id '
+            'ON whatsapp_message_logs(order_id)',
+        'CREATE INDEX idx_whatsapp_message_logs_status '
+            'ON whatsapp_message_logs(status)',
+      ],
+    ),
+    DatabaseMigration(
+      version: 4,
+      name: 'add_tailoring_state_cache',
+      statements: [
+        '''
+        CREATE TABLE tailoring_state_cache (
+          id TEXT PRIMARY KEY,
+          payload TEXT NOT NULL,
+          revision INTEGER NOT NULL DEFAULT 0,
+          updated_at TEXT NOT NULL
+        )
+        ''',
+      ],
+    ),
   ];
 }
