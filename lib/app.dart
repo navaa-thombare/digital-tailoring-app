@@ -11,11 +11,15 @@ import 'package:printing/printing.dart';
 import 'core/config/app_config.dart';
 import 'core/config/production_seed_migration.dart';
 import 'core/contacts/phone_contact_lookup.dart';
+import 'core/messaging/whatsapp_api_config.dart';
 import 'core/messaging/whatsapp_templates.dart';
 import 'core/orders/order_validation.dart';
 import 'core/orders/unit_work_assignment.dart';
 import 'core/security/password_hasher.dart';
 import 'data/repositories/tailoring_state_repository.dart';
+import 'data/repositories/whatsapp_message_repository.dart';
+import 'features/messaging/screens/whatsapp_api_settings_screen.dart';
+import 'features/messaging/screens/whatsapp_message_history_screen.dart';
 
 const _brand = Color(0xFF5B8DEF);
 const _brandDark = Color(0xFF214B9B);
@@ -1156,6 +1160,7 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
               onWorkerSaved: _saveWorker,
               onWorkerPaymentRecorded: _recordWorkerPayment,
               onTemplateAssigned: _assignOrderTemplateWorker,
+              onClearAllData: _clearAllData,
             ),
         },
       ),
@@ -1303,6 +1308,29 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
       _tab = 0;
       _showShopSettings = false;
       _stage = _Stage.login;
+    });
+  }
+
+  Future<void> _clearAllData() async {
+    if (AppConfig.hasSupabaseConfig) {
+      await _stateRepository.clearCloudShopData();
+    }
+    await Future.wait([
+      _stateRepository.clearLocal(),
+      WhatsAppMessageRepository().clear(),
+      WhatsAppApiConfigStorage().clear(),
+      _storage.delete(key: whatsappOrderReceivedStorageKey),
+      _storage.delete(key: whatsappOrderReadyStorageKey),
+    ]);
+    if (!mounted) return;
+    setState(() {
+      _customers.clear();
+      _orders.clear();
+      _templates.clear();
+      _workers.clear();
+      _cloudSyncError = null;
+      _tab = 3;
+      _showShopSettings = true;
     });
   }
 
@@ -2728,6 +2756,7 @@ class HomeShell extends StatelessWidget {
     required this.onWorkerSaved,
     required this.onWorkerPaymentRecorded,
     required this.onTemplateAssigned,
+    required this.onClearAllData,
   });
 
   final int tab;
@@ -2758,6 +2787,7 @@ class HomeShell extends StatelessWidget {
     required ShopWorker worker,
     String? status,
   }) onTemplateAssigned;
+  final Future<void> Function() onClearAllData;
 
   @override
   Widget build(BuildContext context) {
@@ -2767,13 +2797,7 @@ class HomeShell extends StatelessWidget {
         (worker.roles.contains('manager') ||
             worker.roles.contains('accountant'));
     final titles = isOwner
-        ? [
-            'Owner Dashboard',
-            'Shop Orders',
-            'Customers',
-            'Templates',
-            'My Shop'
-          ]
+        ? ['Owner Dashboard', 'Shop Orders', 'Customers', 'My Shop']
         : isManagerWorker
             ? ['Dashboard', 'Shop Orders', 'Customers', 'Workers']
             : ['Dashboard'];
@@ -2796,10 +2820,10 @@ class HomeShell extends StatelessWidget {
               },
               icon: const Icon(Icons.cloud_off_outlined),
             ),
-          if (!isOwner || (currentTab == 4 && showShopSettings))
+          if (!isOwner || (currentTab == 3 && showShopSettings))
             const _LanguageSwitcher(),
           if (isOwner) ...[
-            if (currentTab == 4)
+            if (currentTab == 3)
               IconButton(
                 tooltip:
                     tr(context, showShopSettings ? 'Workers' : 'Shop Settings'),
@@ -2869,11 +2893,8 @@ class HomeShell extends StatelessWidget {
                       _DrawerTile(Icons.people_outline, 'Customers', 2,
                           currentTab, onTabChanged),
                     if (isOwner)
-                      _DrawerTile(Icons.design_services_outlined, 'Templates',
-                          3, currentTab, onTabChanged),
-                    if (isOwner)
                       _DrawerTile(Icons.store_mall_directory_outlined,
-                          'My Shop', 4, currentTab, onTabChanged),
+                          'My Shop', 3, currentTab, onTabChanged),
                     if (isManagerWorker)
                       _DrawerTile(Icons.groups_outlined, 'Workers', 3,
                           currentTab, onTabChanged),
@@ -2922,12 +2943,7 @@ class HomeShell extends StatelessWidget {
                     onAddCustomer: () => _openCustomer(context),
                     onOrderSaved: onOrderSaved,
                   ),
-                3 => TemplatesTab(
-                    templates: templates,
-                    onSave: onTemplateSaved,
-                    onDelete: onTemplateDeleted,
-                  ),
-                4 => ProfileTab(
+                3 => ProfileTab(
                     profile: profile,
                     templates: templates,
                     workers: workers,
@@ -2936,6 +2952,7 @@ class HomeShell extends StatelessWidget {
                     onTemplateDeleted: onTemplateDeleted,
                     onWorkerSaved: onWorkerSaved,
                     onWorkerPaymentRecorded: onWorkerPaymentRecorded,
+                    onClearAllData: onClearAllData,
                   ),
                 _ => const SizedBox.shrink(),
               }
@@ -2970,6 +2987,7 @@ class HomeShell extends StatelessWidget {
                         onTemplateDeleted: onTemplateDeleted,
                         onWorkerSaved: onWorkerSaved,
                         onWorkerPaymentRecorded: onWorkerPaymentRecorded,
+                        onClearAllData: onClearAllData,
                       ),
                     _ => const SizedBox.shrink(),
                   }
@@ -3000,11 +3018,6 @@ class HomeShell extends StatelessWidget {
                         icon: const Icon(Icons.people_outline),
                         selectedIcon: const Icon(Icons.people),
                         label: tr(context, 'Customers'),
-                      ),
-                      NavigationDestination(
-                        icon: const Icon(Icons.design_services_outlined),
-                        selectedIcon: const Icon(Icons.design_services),
-                        label: tr(context, 'Templates'),
                       ),
                       NavigationDestination(
                         icon: const Icon(Icons.store_outlined),
@@ -5502,6 +5515,7 @@ class ProfileTab extends StatefulWidget {
     required this.onTemplateDeleted,
     required this.onWorkerSaved,
     required this.onWorkerPaymentRecorded,
+    required this.onClearAllData,
   });
 
   final ShopProfile profile;
@@ -5515,6 +5529,7 @@ class ProfileTab extends StatefulWidget {
     required ShopWorker worker,
     required int amount,
   }) onWorkerPaymentRecorded;
+  final Future<void> Function() onClearAllData;
 
   @override
   State<ProfileTab> createState() => _ProfileTabState();
@@ -5544,11 +5559,17 @@ class _ProfileTabState extends State<ProfileTab> {
               const SizedBox(height: 16),
               const _WhatsAppTemplatesSettingsCard(),
               const SizedBox(height: 16),
+              const _WhatsAppApiSettingsCard(),
+              const SizedBox(height: 16),
+              const _WhatsAppMessageHistorySettingsCard(),
+              const SizedBox(height: 16),
               _TemplatesTableCard(
                 templates: widget.templates,
                 onSave: widget.onTemplateSaved,
                 onDelete: widget.onTemplateDeleted,
               ),
+              const SizedBox(height: 24),
+              _ClearAllDataSettingsCard(onClearAllData: widget.onClearAllData),
             ]
           : [
               _WorkersTableCard(
@@ -5620,6 +5641,200 @@ class _WhatsAppTemplatesSettingsCard extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _WhatsAppApiSettingsCard extends StatelessWidget {
+  const _WhatsAppApiSettingsCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: ListTile(
+        leading: const CircleAvatar(
+          backgroundColor: Color(0xFF25D366),
+          foregroundColor: Colors.white,
+          child: Icon(Icons.settings_outlined),
+        ),
+        title: const Text(
+          'WhatsApp API Configuration',
+          style: TextStyle(fontWeight: FontWeight.w900),
+        ),
+        subtitle: const Text(
+          'Edit automatic sending, API version, phone number ID, token, and sender name.',
+        ),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => Navigator.of(context).push<void>(
+          MaterialPageRoute(
+            builder: (_) => const WhatsAppApiSettingsScreen(),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _WhatsAppMessageHistorySettingsCard extends StatelessWidget {
+  const _WhatsAppMessageHistorySettingsCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: ListTile(
+        leading: const CircleAvatar(
+          backgroundColor: Color(0xFF25D366),
+          foregroundColor: Colors.white,
+          child: Icon(Icons.history_outlined),
+        ),
+        title: const Text(
+          'WhatsApp Message History',
+          style: TextStyle(fontWeight: FontWeight.w900),
+        ),
+        subtitle: const Text(
+          'Review sent, failed, and held messages and retry when required.',
+        ),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => Navigator.of(context).push<void>(
+          MaterialPageRoute(
+            builder: (_) => const WhatsAppMessageHistoryScreen(),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ClearAllDataSettingsCard extends StatefulWidget {
+  const _ClearAllDataSettingsCard({required this.onClearAllData});
+
+  final Future<void> Function() onClearAllData;
+
+  @override
+  State<_ClearAllDataSettingsCard> createState() =>
+      _ClearAllDataSettingsCardState();
+}
+
+class _ClearAllDataSettingsCardState extends State<_ClearAllDataSettingsCard> {
+  bool _clearing = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final errorColor = Theme.of(context).colorScheme.error;
+    return Card(
+      color: const Color(0xFFFFF1F1),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.delete_forever_outlined, color: errorColor),
+                const SizedBox(width: 10),
+                Text(
+                  'Clear All Data',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: errorColor,
+                        fontWeight: FontWeight.w900,
+                      ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Permanently removes customers, orders, garment templates, '
+              'workers, payments, WhatsApp history, message templates, and '
+              'API credentials from this device and Supabase. The owner '
+              'account and shop identity are preserved.',
+            ),
+            const SizedBox(height: 14),
+            FilledButton.icon(
+              style: FilledButton.styleFrom(backgroundColor: errorColor),
+              onPressed: _clearing ? null : _confirmAndClear,
+              icon: _clearing
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Icon(Icons.delete_forever_outlined),
+              label: Text(_clearing ? 'Clearing...' : 'Clear All Data'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _confirmAndClear() async {
+    final confirmation = TextEditingController();
+    var canClear = false;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Permanently clear all data?'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'This cannot be undone. Type CLEAR to remove local and '
+                'Supabase shop data.',
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: confirmation,
+                autofocus: true,
+                autocorrect: false,
+                textCapitalization: TextCapitalization.characters,
+                decoration: const InputDecoration(labelText: 'Type CLEAR'),
+                onChanged: (value) => setDialogState(
+                  () => canClear = value.trim() == 'CLEAR',
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.error,
+              ),
+              onPressed:
+                  canClear ? () => Navigator.of(dialogContext).pop(true) : null,
+              child: const Text('Clear Permanently'),
+            ),
+          ],
+        ),
+      ),
+    );
+    confirmation.dispose();
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _clearing = true);
+    try {
+      await widget.onClearAllData();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Local and Supabase shop data were cleared.'),
+        ),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not clear all data: $error')),
+      );
+    } finally {
+      if (mounted) setState(() => _clearing = false);
+    }
   }
 }
 

@@ -75,4 +75,14 @@ class WhatsAppApiConfigStorage {
       ),
     ]);
   }
+
+  Future<void> clear() {
+    return Future.wait([
+      _storage.delete(key: whatsappApiEnabledStorageKey),
+      _storage.delete(key: whatsappApiVersionStorageKey),
+      _storage.delete(key: whatsappPhoneNumberIdStorageKey),
+      _storage.delete(key: whatsappAccessTokenStorageKey),
+      _storage.delete(key: whatsappSenderNameStorageKey),
+    ]);
+  }
 }

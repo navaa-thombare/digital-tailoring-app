@@ -116,6 +116,7 @@ Apply both migrations in order:
 ```text
 supabase/migrations/202605230001_initial_tailoring_schema.sql
 supabase/migrations/202606130001_realtime_tailoring_state.sql
+supabase/migrations/202606140001_clear_shop_data.sql
 ```
 
 In Supabase Authentication, enable Email/Password login. For private

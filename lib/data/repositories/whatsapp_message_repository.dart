@@ -61,6 +61,11 @@ class WhatsAppMessageRepository extends DatabaseDao
     return rows.map(_fromMap).toList(growable: false);
   }
 
+  Future<void> clear() async {
+    final database = await db;
+    await database.delete('whatsapp_message_logs');
+  }
+
   Map<String, Object?> _toMap(WhatsAppMessageLog log) {
     return {
       'id': log.id,

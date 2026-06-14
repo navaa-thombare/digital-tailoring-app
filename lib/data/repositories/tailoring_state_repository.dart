@@ -62,6 +62,38 @@ class TailoringStateRepository extends DatabaseDao {
     );
   }
 
+  Future<void> clearLocal() async {
+    await _waitForSaves();
+    final database = await db;
+    await database.delete(
+      'tailoring_state_cache',
+      where: 'id = ?',
+      whereArgs: const [_cacheId],
+    );
+    _revision = 0;
+    _pendingPayload = null;
+  }
+
+  Future<void> clearCloudShopData() async {
+    await _waitForSaves();
+    final client = _supabase;
+    final user = client?.auth.currentUser;
+    if (client == null || user == null) {
+      throw const AuthException(
+        'Sign in to Supabase before clearing cloud data.',
+      );
+    }
+    await client.rpc('clear_my_shop_data');
+    _revision = 0;
+  }
+
+  Future<void> _waitForSaves() async {
+    while (_saving) {
+      await Future<void>.delayed(const Duration(milliseconds: 25));
+    }
+    _pendingPayload = null;
+  }
+
   Future<TailoringStateSnapshot> connectOwner({
     required String phone,
     required String password,

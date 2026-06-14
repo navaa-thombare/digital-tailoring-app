@@ -1,7 +1,7 @@
 # Supabase Backend
 
-The migration in `migrations/202605230001_initial_tailoring_schema.sql` creates
-the production data boundary for Digital Tailoring:
+The migrations in `migrations/` create the production data boundary for
+Digital Tailoring:
 
 - one shop per owner account
 - one active shop membership per worker, with multiple roles in that shop
@@ -9,6 +9,8 @@ the production data boundary for Digital Tailoring:
   settings scoped by `shop_id`
 - Row Level Security policies based on the authenticated user's active shop
   membership and roles
+- an owner-only `clear_my_shop_data` function for the destructive reset in
+  Shop Settings
 
 ## Apply The Migration
 
