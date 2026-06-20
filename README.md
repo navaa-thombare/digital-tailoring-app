@@ -76,17 +76,20 @@ build\app\outputs\flutter-apk\app-dev-debug.apk
 
 Owner settings include:
 
-- **WhatsApp Templates** for the mandatory new-order and ready-for-pickup text.
+- **WhatsApp Templates** for Marathi new-order, work-started, and
+  ready-for-pickup messages.
 - **WhatsApp API Configuration** for Meta Graph API version, WhatsApp phone
   number ID, permanent access token, and sender name.
 - **WhatsApp Message History** for customer, date, message type, status,
   template, rendered message, provider ID, and errors.
 
-Creating an order queues the `Order` message. The first transition where every
-ordered unit is `Ready` queues the `Delivery` message. Each event is stored once
-per order, so later edits do not send duplicates. If automatic sending is
-disabled or incomplete, the record is stored as `Hold`; provider rejections are
-stored as `Failure`. Both can be retried from message history.
+Creating an order queues the `Order` message. The first worker assignment with
+`In Stitching` status queues the `In Progress` message. The first transition
+where every ordered unit is `Ready` queues the `Delivery` message. Each event is
+stored once per order, so later edits do not send duplicates. If automatic API
+sending is disabled, incomplete, or rejected, the app offers to open WhatsApp
+with the Marathi message prefilled. Held and failed messages can also be opened
+manually or retried through the API from message history.
 
 The current mobile integration calls Meta WhatsApp Cloud API directly and keeps
 the access token in Android secure storage. For production, put this call behind

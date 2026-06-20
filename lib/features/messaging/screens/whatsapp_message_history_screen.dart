@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../../../core/messaging/whatsapp_message_log.dart';
 import '../../../core/messaging/whatsapp_messaging_service.dart';
+import '../../../core/messaging/manual_whatsapp_sender.dart';
 import '../../../data/repositories/whatsapp_message_repository.dart';
 
 class WhatsAppMessageHistoryScreen extends StatefulWidget {
@@ -179,6 +180,21 @@ class _WhatsAppMessageHistoryScreenState
           ),
         ),
         actions: [
+          OutlinedButton.icon(
+            onPressed: () async {
+              Navigator.of(dialogContext).pop();
+              final opened = await openManualWhatsAppMessage(
+                phone: log.phone,
+                message: log.renderedMessage,
+              );
+              if (!mounted || opened) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Could not open WhatsApp.')),
+              );
+            },
+            icon: const Icon(Icons.chat_outlined),
+            label: const Text('Open in WhatsApp'),
+          ),
           if (log.status != WhatsAppMessageStatus.success)
             FilledButton.icon(
               onPressed: () async {

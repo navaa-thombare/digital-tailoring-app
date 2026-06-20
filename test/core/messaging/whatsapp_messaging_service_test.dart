@@ -113,6 +113,41 @@ void main() {
     expect(logs.logs.single.providerMessageId, 'wamid.ready');
     expect(logs.logs.single.messageType, WhatsAppMessageType.delivery);
   });
+
+  test('in-progress message is created only once per order', () async {
+    final logs = _FakeMessageLogStore();
+    final service = WhatsAppMessagingService(
+      repository: logs,
+      gateway: _FakeGateway(),
+      configReader: () async => const WhatsAppApiConfig(
+        enabled: false,
+        apiVersion: 'v23.0',
+        phoneNumberId: '',
+        accessToken: '',
+        senderName: '',
+      ),
+      templateReader: (_) async => null,
+    );
+
+    final first = await service.sendOrderInProgress(
+      orderId: 'ORD-3',
+      customerName: 'अजय',
+      phone: '9876543210',
+      templateName: 'शर्ट',
+    );
+    final duplicate = await service.sendOrderInProgress(
+      orderId: 'ORD-3',
+      customerName: 'अजय',
+      phone: '9876543210',
+      templateName: 'पॅन्ट',
+    );
+
+    expect(first?.requiresManualSend, isTrue);
+    expect(first?.log.renderedMessage, contains('शर्ट'));
+    expect(duplicate, isNull);
+    expect(logs.logs, hasLength(1));
+    expect(logs.logs.single.messageType.label, 'In Progress');
+  });
 }
 
 class _FakeGateway implements WhatsAppMessageGateway {

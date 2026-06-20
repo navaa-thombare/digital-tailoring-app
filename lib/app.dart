@@ -11,7 +11,9 @@ import 'package:printing/printing.dart';
 import 'core/config/app_config.dart';
 import 'core/config/production_seed_migration.dart';
 import 'core/contacts/phone_contact_lookup.dart';
+import 'core/messaging/manual_whatsapp_sender.dart';
 import 'core/messaging/whatsapp_api_config.dart';
+import 'core/messaging/whatsapp_messaging_service.dart';
 import 'core/messaging/whatsapp_templates.dart';
 import 'core/orders/order_validation.dart';
 import 'core/orders/unit_work_assignment.dart';
@@ -797,6 +799,8 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
   AppLanguage _language = AppLanguage.en;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   final TailoringStateRepository _stateRepository = TailoringStateRepository();
+  final WhatsAppMessagingService _whatsAppMessagingService =
+      WhatsAppMessagingService();
   ShopWorker? _loggedInWorker;
   ShopWorker? _passwordResetWorker;
   bool _isResettingOwnerPassword = false;
@@ -1320,6 +1324,7 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
       WhatsAppMessageRepository().clear(),
       WhatsAppApiConfigStorage().clear(),
       _storage.delete(key: whatsappOrderReceivedStorageKey),
+      _storage.delete(key: whatsappOrderInProgressStorageKey),
       _storage.delete(key: whatsappOrderReadyStorageKey),
     ]);
     if (!mounted) return;
@@ -1389,15 +1394,21 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
   }
 
   void _saveOrder(TailorOrder order) {
+    final existingIndex = _orders.indexWhere((item) => item.id == order.id);
+    final existingOrder = existingIndex >= 0 ? _orders[existingIndex] : null;
     setState(() {
-      final index = _orders.indexWhere((item) => item.id == order.id);
-      if (index >= 0) {
-        _orders[index] = order;
+      if (existingIndex >= 0) {
+        _orders[existingIndex] = order;
       } else {
         _orders.insert(0, order);
       }
     });
     unawaited(_persistState());
+    if (existingOrder == null) {
+      unawaited(_sendOrderCreatedMessage(order));
+    } else if (!existingOrder.allTemplatesReady && order.allTemplatesReady) {
+      unawaited(_sendOrderReadyMessage(order));
+    }
   }
 
   void _saveWorker(ShopWorker worker) {
@@ -1470,11 +1481,15 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
     required ShopWorker worker,
     String? status,
   }) {
+    TailorOrder? updatedOrder;
+    String? startedTemplateName;
+    var becameReady = false;
     setState(() {
       final orderIndex = _orders.indexWhere((order) => order.id == orderId);
       if (orderIndex < 0) return;
 
       final order = _orders[orderIndex];
+      final wasReady = order.allTemplatesReady;
       if (itemIndex >= order.items.length) return;
       final item = order.items[itemIndex];
       if (unitIndex < 0 || unitIndex >= item.quantity) return;
@@ -1504,16 +1519,145 @@ class _StoreManagementAppState extends State<StoreManagementApp> {
         workerPaymentStatusByUnit: transition.workerPaymentStatusByUnit,
       );
       final nextOrderStatus = _orderWorkStatus(items);
-      _orders[orderIndex] = order.copyWith(
+      updatedOrder = order.copyWith(
         status: nextOrderStatus,
         items: items,
       );
+      _orders[orderIndex] = updatedOrder!;
+      if (nextStatus == 'In Stitching') {
+        startedTemplateName = item.templateName;
+      }
+      becameReady = !wasReady && updatedOrder!.allTemplatesReady;
 
       for (final walletDelta in transition.walletDeltas.entries) {
         _updateWorkerWallet(walletDelta.key, walletDelta.value);
       }
     });
     unawaited(_persistState());
+    final messageOrder = updatedOrder;
+    if (messageOrder == null) return;
+    if (startedTemplateName != null) {
+      unawaited(
+        _sendOrderInProgressMessage(
+          messageOrder,
+          templateName: startedTemplateName!,
+        ),
+      );
+    }
+    if (becameReady) {
+      unawaited(_sendOrderReadyMessage(messageOrder));
+    }
+  }
+
+  TailorCustomer? _customerForOrder(TailorOrder order) {
+    for (final customer in _customers) {
+      if (customer.name == order.customerName) return customer;
+    }
+    return null;
+  }
+
+  Future<void> _sendOrderCreatedMessage(TailorOrder order) async {
+    final customer = _customerForOrder(order);
+    if (customer == null) return;
+    await _runWhatsAppDispatch(
+      _whatsAppMessagingService.sendOrderCreated(
+        orderId: order.id,
+        customerName: customer.name,
+        phone: customer.phone,
+        deliveryDate: _formatDate(order.dueDate),
+      ),
+    );
+  }
+
+  Future<void> _sendOrderInProgressMessage(
+    TailorOrder order, {
+    required String templateName,
+  }) async {
+    final customer = _customerForOrder(order);
+    if (customer == null) return;
+    await _runWhatsAppDispatch(
+      _whatsAppMessagingService.sendOrderInProgress(
+        orderId: order.id,
+        customerName: customer.name,
+        phone: customer.phone,
+        templateName: templateName,
+      ),
+    );
+  }
+
+  Future<void> _sendOrderReadyMessage(TailorOrder order) async {
+    final customer = _customerForOrder(order);
+    if (customer == null) return;
+    await _runWhatsAppDispatch(
+      _whatsAppMessagingService.sendOrderReady(
+        orderId: order.id,
+        customerName: customer.name,
+        phone: customer.phone,
+        totalAmount: order.amount,
+        paidAmount: order.advancePayment,
+        balanceAmount: order.balanceAmount,
+      ),
+    );
+  }
+
+  Future<void> _runWhatsAppDispatch(
+    Future<WhatsAppDispatchResult?> dispatch,
+  ) async {
+    try {
+      await _handleWhatsAppDispatch(await dispatch);
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('WhatsApp message could not be prepared: $error')),
+      );
+    }
+  }
+
+  Future<void> _handleWhatsAppDispatch(
+    WhatsAppDispatchResult? result,
+  ) async {
+    if (result == null || !result.requiresManualSend || !mounted) return;
+    final shouldOpen = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('WhatsApp - ${result.log.messageType.label}'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Automatic API sending is disabled, incomplete, or failed. '
+                'Review the Marathi message and send it manually.',
+              ),
+              const SizedBox(height: 12),
+              SelectableText(result.log.renderedMessage),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Later'),
+          ),
+          FilledButton.icon(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            icon: const Icon(Icons.chat_outlined),
+            label: const Text('Open WhatsApp'),
+          ),
+        ],
+      ),
+    );
+    if (shouldOpen != true) return;
+    final opened = await openManualWhatsAppMessage(
+      phone: result.log.phone,
+      message: result.log.renderedMessage,
+    );
+    if (!mounted || opened) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Could not open WhatsApp.')),
+    );
   }
 
   void _updateWorkerWallet(String mobile, int amount) {
@@ -5847,11 +5991,9 @@ class WhatsAppTemplatesScreen extends StatefulWidget {
 }
 
 class _WhatsAppTemplatesScreenState extends State<WhatsAppTemplatesScreen> {
-  static const _orderReceivedStorageKey = 'whatsapp_order_received_template';
-  static const _orderReadyStorageKey = 'whatsapp_order_ready_template';
-
   final _formKey = GlobalKey<FormState>();
   final _orderReceived = TextEditingController();
+  final _orderInProgress = TextEditingController();
   final _orderReady = TextEditingController();
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   bool _isLoading = true;
@@ -5866,6 +6008,7 @@ class _WhatsAppTemplatesScreenState extends State<WhatsAppTemplatesScreen> {
   @override
   void dispose() {
     _orderReceived.dispose();
+    _orderInProgress.dispose();
     _orderReady.dispose();
     super.dispose();
   }
@@ -5900,7 +6043,7 @@ class _WhatsAppTemplatesScreenState extends State<WhatsAppTemplatesScreen> {
                               child: Text(
                                 tr(
                                   context,
-                                  'Both templates are mandatory. Keep every required placeholder so customer and order values can be inserted before sending to WhatsApp.',
+                                  'All three Marathi templates are mandatory. Keep every required placeholder so customer and order values can be inserted before sending to WhatsApp.',
                                 ),
                               ),
                             ),
@@ -5922,6 +6065,22 @@ class _WhatsAppTemplatesScreenState extends State<WhatsAppTemplatesScreen> {
                       previewReplacements: const {
                         '{{1}}': 'Aarav',
                         '{{2}}': '20 Jun 2026',
+                      },
+                    ),
+                    const SizedBox(height: 18),
+                    _WhatsAppTemplateEditor(
+                      title: 'Work in progress',
+                      description:
+                          'Sent once when the first ordered template is assigned to a worker with In Stitching status.',
+                      controller: _orderInProgress,
+                      requiredPlaceholders: const ['{{1}}', '{{2}}'],
+                      placeholderGuide: const [
+                        '{{1}} Customer name',
+                        '{{2}} Garment template name',
+                      ],
+                      previewReplacements: const {
+                        '{{1}}': 'अजय',
+                        '{{2}}': 'शर्ट',
                       },
                     ),
                     const SizedBox(height: 18),
@@ -5984,12 +6143,22 @@ class _WhatsAppTemplatesScreenState extends State<WhatsAppTemplatesScreen> {
 
   Future<void> _loadTemplates() async {
     final values = await Future.wait([
-      _readSecureValue(_storage, _orderReceivedStorageKey),
-      _readSecureValue(_storage, _orderReadyStorageKey),
+      _readSecureValue(_storage, whatsappOrderReceivedStorageKey),
+      _readSecureValue(_storage, whatsappOrderInProgressStorageKey),
+      _readSecureValue(_storage, whatsappOrderReadyStorageKey),
     ]);
     if (!mounted) return;
-    _orderReceived.text = values[0] ?? defaultOrderReceivedWhatsAppTemplate;
-    _orderReady.text = values[1] ?? defaultOrderReadyWhatsAppTemplate;
+    _orderReceived.text = migrateLegacyWhatsAppTemplate(
+          whatsappOrderReceivedStorageKey,
+          values[0],
+        ) ??
+        defaultOrderReceivedWhatsAppTemplate;
+    _orderInProgress.text = values[1] ?? defaultOrderInProgressWhatsAppTemplate;
+    _orderReady.text = migrateLegacyWhatsAppTemplate(
+          whatsappOrderReadyStorageKey,
+          values[2],
+        ) ??
+        defaultOrderReadyWhatsAppTemplate;
     setState(() => _isLoading = false);
   }
 
@@ -5998,11 +6167,15 @@ class _WhatsAppTemplatesScreenState extends State<WhatsAppTemplatesScreen> {
     setState(() => _isSaving = true);
     await Future.wait([
       _storage.write(
-        key: _orderReceivedStorageKey,
+        key: whatsappOrderReceivedStorageKey,
         value: _orderReceived.text.trim(),
       ),
       _storage.write(
-        key: _orderReadyStorageKey,
+        key: whatsappOrderInProgressStorageKey,
+        value: _orderInProgress.text.trim(),
+      ),
+      _storage.write(
+        key: whatsappOrderReadyStorageKey,
         value: _orderReady.text.trim(),
       ),
     ]);
@@ -6016,6 +6189,7 @@ class _WhatsAppTemplatesScreenState extends State<WhatsAppTemplatesScreen> {
   void _restoreDefaults() {
     setState(() {
       _orderReceived.text = defaultOrderReceivedWhatsAppTemplate;
+      _orderInProgress.text = defaultOrderInProgressWhatsAppTemplate;
       _orderReady.text = defaultOrderReadyWhatsAppTemplate;
     });
     _formKey.currentState?.validate();

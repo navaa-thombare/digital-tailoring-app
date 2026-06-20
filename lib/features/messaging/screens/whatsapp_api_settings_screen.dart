@@ -55,6 +55,8 @@ class _WhatsAppApiSettingsScreenState extends State<WhatsAppApiSettingsScreen> {
                         padding: EdgeInsets.all(16),
                         child: Text(
                           'Automatic sending uses Meta WhatsApp Cloud API. '
+                          'Turn it off to use manual WhatsApp with a prefilled '
+                          'Marathi message. '
                           'Credentials are stored in Android secure storage. '
                           'For production, use a backend so the access token is '
                           'not distributed inside the mobile app.',
@@ -69,7 +71,7 @@ class _WhatsAppApiSettingsScreenState extends State<WhatsAppApiSettingsScreen> {
                         style: TextStyle(fontWeight: FontWeight.w800),
                       ),
                       subtitle: const Text(
-                        'Unconfigured or disabled messages are recorded as Hold.',
+                        'Off: open WhatsApp manually. On: send through the Meta API.',
                       ),
                       onChanged: (value) => setState(() => _enabled = value),
                     ),

@@ -6,7 +6,7 @@ enum WhatsAppMessageType {
   String get label => switch (this) {
         order => 'Order',
         delivery => 'Delivery',
-        reminder => 'Reminder',
+        reminder => 'In Progress',
       };
 }
 

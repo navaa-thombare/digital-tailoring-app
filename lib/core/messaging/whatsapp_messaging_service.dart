@@ -20,6 +20,16 @@ class WhatsAppSendResult {
   final String? errorMessage;
 }
 
+class WhatsAppDispatchResult {
+  const WhatsAppDispatchResult({
+    required this.log,
+    required this.requiresManualSend,
+  });
+
+  final WhatsAppMessageLog log;
+  final bool requiresManualSend;
+}
+
 abstract interface class WhatsAppMessageGateway {
   Future<WhatsAppSendResult> send({
     required WhatsAppApiConfig config,
@@ -116,7 +126,7 @@ class WhatsAppMessagingService {
   final Future<WhatsAppApiConfig> Function()? _configReader;
   final Future<String?> Function(String key)? _templateReader;
 
-  Future<void> sendOrderCreated({
+  Future<WhatsAppDispatchResult?> sendOrderCreated({
     required String orderId,
     required String customerName,
     required String phone,
@@ -137,7 +147,28 @@ class WhatsAppMessagingService {
     );
   }
 
-  Future<void> sendOrderReady({
+  Future<WhatsAppDispatchResult?> sendOrderInProgress({
+    required String orderId,
+    required String customerName,
+    required String phone,
+    required String templateName,
+  }) {
+    return _dispatch(
+      eventKey: '$orderId:in-progress',
+      orderId: orderId,
+      customerName: customerName,
+      phone: phone,
+      type: WhatsAppMessageType.reminder,
+      templateKey: whatsappOrderInProgressStorageKey,
+      fallbackTemplate: defaultOrderInProgressWhatsAppTemplate,
+      replacements: {
+        '{{1}}': customerName,
+        '{{2}}': templateName,
+      },
+    );
+  }
+
+  Future<WhatsAppDispatchResult?> sendOrderReady({
     required String orderId,
     required String customerName,
     required String phone,
@@ -192,7 +223,7 @@ class WhatsAppMessagingService {
     return result;
   }
 
-  Future<void> _dispatch({
+  Future<WhatsAppDispatchResult?> _dispatch({
     required String eventKey,
     required String orderId,
     required String customerName,
@@ -202,10 +233,12 @@ class WhatsAppMessagingService {
     required String fallbackTemplate,
     required Map<String, String> replacements,
   }) async {
-    if (await _repository.eventExists(eventKey)) return;
+    if (await _repository.eventExists(eventKey)) return null;
 
-    final savedTemplate = await (_templateReader?.call(templateKey) ??
+    final storedTemplate = await (_templateReader?.call(templateKey) ??
         _templateStorage.read(key: templateKey));
+    final savedTemplate =
+        migrateLegacyWhatsAppTemplate(templateKey, storedTemplate);
     final template = savedTemplate == null || savedTemplate.trim().isEmpty
         ? fallbackTemplate
         : savedTemplate;
@@ -216,24 +249,25 @@ class WhatsAppMessagingService {
         ? 'Waiting for WhatsApp provider response.'
         : 'Automatic sending is disabled or WhatsApp API configuration is incomplete.';
 
-    final inserted = await _repository.insert(
-      WhatsAppMessageLog(
-        id: '${now.microsecondsSinceEpoch}-$eventKey',
-        eventKey: eventKey,
-        orderId: orderId,
-        customerName: customerName,
-        phone: phone,
-        messageType: type,
-        status: WhatsAppMessageStatus.hold,
-        messageTemplate: template,
-        renderedMessage: renderedMessage,
-        errorMessage: configurationError,
-        createdAt: now,
-        updatedAt: now,
-      ),
+    final log = WhatsAppMessageLog(
+      id: '${now.microsecondsSinceEpoch}-$eventKey',
+      eventKey: eventKey,
+      orderId: orderId,
+      customerName: customerName,
+      phone: phone,
+      messageType: type,
+      status: WhatsAppMessageStatus.hold,
+      messageTemplate: template,
+      renderedMessage: renderedMessage,
+      errorMessage: configurationError,
+      createdAt: now,
+      updatedAt: now,
     );
-    if (!inserted) return;
-    if (!config.isConfigured) return;
+    final inserted = await _repository.insert(log);
+    if (!inserted) return null;
+    if (!config.isConfigured) {
+      return WhatsAppDispatchResult(log: log, requiresManualSend: true);
+    }
 
     final result = await _gateway.send(
       config: config,
@@ -245,6 +279,24 @@ class WhatsAppMessagingService {
       status: result.status,
       providerMessageId: result.providerMessageId,
       errorMessage: result.errorMessage,
+    );
+    return WhatsAppDispatchResult(
+      log: WhatsAppMessageLog(
+        id: log.id,
+        eventKey: log.eventKey,
+        orderId: log.orderId,
+        customerName: log.customerName,
+        phone: log.phone,
+        messageType: log.messageType,
+        status: result.status,
+        messageTemplate: log.messageTemplate,
+        renderedMessage: log.renderedMessage,
+        providerMessageId: result.providerMessageId,
+        errorMessage: result.errorMessage,
+        createdAt: log.createdAt,
+        updatedAt: DateTime.now(),
+      ),
+      requiresManualSend: result.status != WhatsAppMessageStatus.success,
     );
   }
 }
